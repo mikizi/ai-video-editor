@@ -105,3 +105,4 @@ node_modules/
 .DS_Store
 Claude outputs/
 brand_assets/*.mp4
+.remotion/

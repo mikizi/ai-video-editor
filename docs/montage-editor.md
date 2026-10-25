@@ -1,12 +1,11 @@
 # Montage editor — status and next steps
 
-Branch: `refactor/montage-editor` (commit only, do not push — `origin` is the public upstream).
 
 ## Goal ("CapCut on steroids")
 1. Talk about the video (story/script) in chat.
 2. Pick content (local folders or Google Photos — `lib/google_photos.py`).
 3. Claude proposes the clip order -> `projects/<id>/artifacts/timeline.json`.
-4. Miki edits it in the CapCut-style editor (order, trims, text, music, transitions).
+4. You edit it in the CapCut-style editor (order, trims, text, music, transitions).
 5. Claude adds animated "motion scenes" (HyperFrames) as clips on the timeline.
 6. Export the final MP4 only when it is good.
 
