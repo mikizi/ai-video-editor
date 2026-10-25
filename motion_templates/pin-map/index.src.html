@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"stops","type":"string","label":"Stops","default":""},{"id":"times","type":"string","label":"Times","default":""},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#06172b"},{"id":"bg_to","type":"color","label":"Background 2","default":"#134a82"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #06172b; --bg2: #134a82; }
+  #root { width: __W__px; height: __H__px; }
+  #pm-bg { background: radial-gradient(ellipse at 50% 45%, var(--bg2) 0%, var(--bg1) 85%); }
+  #pm-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pm-en { font-weight: 800; font-size: 54px; letter-spacing: .08em; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.8); stroke-width: 10px; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="pm-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="pm-map" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1">
+    <svg id="pm-svg" viewBox="0 0 __W__ __H__" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g id="pm-z"><path id="pm-land" fill="rgba(255,255,255,.06)"/><path id="pm-poland" fill="rgba(255,255,255,.24)" stroke="rgba(255,255,255,.6)" stroke-width="3" vector-effect="non-scaling-stroke"/><path id="pm-borders" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" vector-effect="non-scaling-stroke"/><g id="pm-g"></g></g>
+    </svg>
+  </div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const GEO = /*GEO*/null/*END*/;
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const $ = (id) => document.getElementById(id), NS = "http://www.w3.org/2000/svg";
+  $("pm-land").setAttribute("d", GEO.land); $("pm-poland").setAttribute("d", GEO.poland); $("pm-borders").setAttribute("d", GEO.borders);
+  const P = GEO.proj, rad = Math.PI / 180, merc = (f) => Math.log(Math.tan(Math.PI / 4 + f * rad / 2));
+  const project = (lon, lat) => [P.tx + P.k * (lon - P.lon0) * rad, P.ty - P.k * (merc(lat) - merc(P.lat0))];
+  const stops = (v.stops || "").split(";").map((s) => s.split("|")).filter((a) => a.length >= 3).map(([en, lon, lat, side]) => ({ en, side: (side || "B").toUpperCase(), p: project(+lon, +lat) }));
+  const times = (v.times || "").split(",").map(Number);
+  const mk = (tag, a, par) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); (par || $("pm-g")).appendChild(e); return e; };
+  // camera: one transform on the whole map group. "far" fits the first stop and the second; "near" fits every Polish stop.
+  const fit = (pts, wpx, hpx, cxp = W / 2, cyp = H / 2) => {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const z = Math.min(wpx / Math.max(x1 - x0, 1), hpx / Math.max(y1 - y0, 1));
+    return { z, x: cxp - z * (x0 + x1) / 2, y: cyp - z * (y0 + y1) / 2 };
+  };
+  const far = fit([stops[0].p, stops[1].p], W * 0.7, H * 0.62), near = fit(stops.slice(1).map((s) => s.p), W * 0.5, H * 0.6);
+  const cam = { z: far.z, x: far.x, y: far.y };
+  const apply = () => $("pm-z").setAttribute("transform", `translate(${cam.x} ${cam.y}) scale(${cam.z})`);
+  apply();
+  // everything in the group is drawn in map units, so sizes are divided by the zoom: use a screen-size helper
+  const tl = gsap.timeline({ paused: true });
+  const labels = [], pins = [];
+  stops.forEach((s, i) => {
+    const g = mk("g", { transform: `translate(${s.p[0]} ${s.p[1]})` });
+    const inner = mk("g", {}, g);
+    mk("circle", { r: 1, class: "ring", fill: "none", stroke: "#FFD400", "stroke-width": 6 }, inner);
+    mk("circle", { r: 1, class: "dot", fill: "#FFD400", stroke: "#0b1f3a", "stroke-width": 4 }, inner);
+    const t = mk("text", { class: "pm-en", x: s.side === "L" ? -46 : s.side === "R" ? 46 : 0, y: s.side === "T" ? -50 : s.side === "B" ? 100 : 18, "text-anchor": s.side === "L" ? "end" : s.side === "R" ? "start" : "middle" }, inner); t.textContent = s.en;
+    pins.push({ g, inner });
+  });
+  const lines = [];
+  for (let i = 1; i < stops.length; i++) {
+    const a = stops[i - 1].p, b = stops[i].p, dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, bend = i === 1 ? len * 0.15 : len * 0.1;
+    const d = `M${a[0]} ${a[1]} Q${(a[0] + b[0]) / 2 - dy / len * bend} ${(a[1] + b[1]) / 2 + dx / len * bend} ${b[0]} ${b[1]}`;
+    const pth = mk("path", { d, fill: "none", stroke: "#6fe3ff", "stroke-width": 5, "stroke-linecap": "round", "stroke-dasharray": "1 1", "vector-effect": "non-scaling-stroke" });
+    const L = pth.getTotalLength(); pth.style.strokeDasharray = L; pth.style.strokeDashoffset = L; lines.push({ pth, L });
+  }
+  const sz = (z) => 1 / z;
+  // pin sizes are set per camera state so they stay readable: size = screen px / zoom
+  const setPin = (i, z, scaleIn) => { const k = sz(z); pins[i].inner.setAttribute("transform", `scale(${k * scaleIn})`); pins[i].inner.querySelector(".dot").setAttribute("r", 24); pins[i].inner.querySelector(".ring").setAttribute("r", 24 + 26 * 0); };
+  const state = stops.map(() => ({ s: 0 }));
+  const refresh = () => stops.forEach((_, i) => setPin(i, cam.z, state[i].s));
+  stops.forEach((_, i) => { setPin(i, cam.z, 0); });
+  tl.fromTo("#pm-z", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0);
+  stops.forEach((s, i) => {
+    const t = Math.max(0.05, times[i] ?? i), st = state[i];
+    tl.to(st, { s: 1, duration: 0.45, ease: "back.out(2.4)", onUpdate: refresh }, t);
+    const ring = pins[i].inner.querySelector(".ring");
+    tl.fromTo(ring, { attr: { r: 24 }, opacity: 0.9 }, { attr: { r: 90 }, opacity: 0, duration: 0.7, ease: "power2.out" }, t);
+    if (i >= 1) tl.to(lines[i - 1].pth.style, { strokeDashoffset: 0, duration: Math.min(0.8, Math.max(0.35, t - (times[i - 1] ?? t - 1) - 0.1)), ease: "power1.inOut" }, (times[i - 1] ?? t - 1) + 0.12);
+  });
+  // camera move: from far (first stop + second) to near (Poland) right when the second pin lands
+  const tz = Math.max(0.3, (times[1] ?? 1)) - 0.05;
+  tl.to(cam, { z: near.z, x: near.x, y: near.y, duration: 0.7, ease: "power2.inOut", onUpdate: () => { apply(); refresh(); } }, tz + 0.1);
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

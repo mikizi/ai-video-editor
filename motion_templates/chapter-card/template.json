@@ -1,0 +1,13 @@
+{
+  "id": "chapter-card",
+  "label": "Chapter card",
+  "description": "A short divider like \"Day 1 · Kraków\" between parts of the trip.",
+  "default_seconds": 2.5,
+  "fields": [
+    {"id": "label", "label": "Label", "type": "string", "default": "Day 1"},
+    {"id": "place", "label": "Place", "type": "string", "default": "Kraków"},
+    {"id": "accent", "label": "Accent color", "type": "color", "default": "#FFD400"},
+    {"id": "bg_from", "label": "Background 1", "type": "color", "default": "#1B1034"},
+    {"id": "bg_to", "label": "Background 2", "type": "color", "default": "#E4457A"}
+  ]
+}

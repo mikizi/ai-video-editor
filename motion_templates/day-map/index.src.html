@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"day_label","type":"string","label":"Day label","default":"DAY 1"},
+  {"id":"date","type":"string","label":"Date","default":"25.09.2026"},
+  {"id":"weekday","type":"string","label":"Weekday","default":"יום שישי"},
+  {"id":"places","type":"string","label":"Places","default":"קרקוב · זאקופנה"},
+  {"id":"stops","type":"string","label":"Stops","default":"קרקוב|KRAKÓW|19.945|50.065|L;זאקופנה|ZAKOPANE|19.95|49.30|L"},
+  {"id":"chip","type":"string","label":"Chip","default":""},
+  {"id":"zoom","type":"string","label":"Zoom","default":"1"},
+  {"id":"mode","type":"string","label":"Mode","default":"day"},
+  {"id":"dawn","type":"string","label":"New-day sunrise intro (1 = on)","default":"0"},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#06172b"},
+  {"id":"bg_to","type":"color","label":"Background 2","default":"#134a82"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #06172b; --bg2: #134a82; }
+  #root { width: __W__px; height: __H__px; }
+  #dm-bg { background: radial-gradient(ellipse at 68% 50%, var(--bg2) 0%, var(--bg1) 80%); }
+  #dm-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #dm-scrim { background: linear-gradient(90deg, rgba(3,10,20,.82) 0%, rgba(3,10,20,.55) 34%, rgba(3,10,20,0) 58%); }
+  #dm-txt { position: absolute; left: calc(var(--u) * 7); top: 50%; transform: translateY(-50%); max-width: 44%; }
+  #dm-day { font-weight: 300; font-size: calc(var(--u) * 15); line-height: .95; letter-spacing: .1em; margin: 0; text-shadow: 0 calc(var(--u) * .8) calc(var(--u) * 4) rgba(0,0,0,.65); }
+  #dm-line { width: calc(var(--u) * 17); height: calc(var(--u) * 1); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 2.4) 0; transform-origin: left center; }
+  #dm-date { font-weight: 800; font-size: calc(var(--u) * 7); letter-spacing: .06em; margin: 0; text-shadow: 0 calc(var(--u) * .6) calc(var(--u) * 3) rgba(0,0,0,.7); }
+  #dm-wd { font-weight: 500; font-size: calc(var(--u) * 4.6); margin: calc(var(--u) * 1) 0 0; opacity: .95; text-shadow: 0 calc(var(--u) * .5) calc(var(--u) * 2.5) rgba(0,0,0,.7); }
+  #dm-places { font-weight: 500; font-size: calc(var(--u) * 3.8); margin: calc(var(--u) * 3.2) 0 0; color: var(--accent); text-shadow: 0 calc(var(--u) * .5) calc(var(--u) * 2.5) rgba(0,0,0,.8); }
+  #dm-chip { position: absolute; right: calc(var(--u) * 6); bottom: calc(var(--u) * 5); padding: calc(var(--u) * 1.4) calc(var(--u) * 3); border-radius: 99px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.35); font-weight: 500; font-size: calc(var(--u) * 3.4); white-space: nowrap; }
+  .p-he { font-weight: 800; font-size: 34px; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.7); stroke-width: 6px; stroke-linejoin: round; }
+  .p-en { font-weight: 500; font-size: 22px; letter-spacing: .14em; fill: rgba(255,255,255,.88); paint-order: stroke; stroke: rgba(0,0,0,.7); stroke-width: 5px; stroke-linejoin: round; }
+  #dm-dawn { overflow: hidden; }
+  #dw-sky { position: absolute; inset: 0; background: linear-gradient(180deg, #04081a 0%, #0b1a3d 55%, #1b2a55 100%); }
+  #dw-glow { position: absolute; left: 50%; top: 62%; width: calc(var(--u) * 150); height: calc(var(--u) * 150); margin: calc(var(--u) * -75) 0 0 calc(var(--u) * -75); border-radius: 50%; background: radial-gradient(circle, rgba(255,214,150,.95) 0%, rgba(255,150,90,.55) 22%, rgba(255,110,120,.22) 45%, rgba(255,110,120,0) 70%); opacity: 0; }
+  #dw-sun { position: absolute; left: 50%; top: 62%; width: calc(var(--u) * 17); height: calc(var(--u) * 17); margin: calc(var(--u) * -8.5) 0 0 calc(var(--u) * -8.5); border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff4cf, #ffc766 60%, #ff9a4d); box-shadow: 0 0 calc(var(--u) * 10) calc(var(--u) * 3) rgba(255,190,110,.7); }
+  #dw-rays { position: absolute; left: 50%; top: 62%; width: calc(var(--u) * 260); height: calc(var(--u) * 260); margin: calc(var(--u) * -130) 0 0 calc(var(--u) * -130); border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(255,214,150,.22) 0deg 4deg, rgba(255,214,150,0) 4deg 14deg); -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 62%); mask-image: radial-gradient(circle, #000 12%, transparent 62%); opacity: 0; }
+  #dw-stars i { position: absolute; width: calc(var(--u) * .35); height: calc(var(--u) * .35); border-radius: 50%; background: #fff; }
+  #dw-hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 44%; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="dm-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="dm-map" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1">
+    <svg id="dm-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g id="dm-g">
+        <g id="dm-z">
+        <path id="dm-land" fill="rgba(255,255,255,.05)"/>
+        <path id="dm-poland" fill="rgba(255,255,255,.20)" stroke="rgba(255,255,255,.5)" stroke-width="2.5"/>
+        <path id="dm-borders" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.5"/>
+        </g>
+        <g id="dm-routes"></g>
+        <g id="dm-pins"></g>
+      </g>
+    </svg>
+  </div>
+  <div id="dm-scrim" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"></div>
+  <div id="dm-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="3">
+    <div id="dm-txt"><h1 id="dm-day"></h1><div id="dm-line"></div><p id="dm-date"></p><p id="dm-wd"></p><p id="dm-places"></p></div>
+    <div id="dm-chip"></div>
+  </div>
+  <div id="dm-dawn" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="4">
+    <div id="dw-sky"></div><div id="dw-stars"></div><div id="dw-rays"></div><div id="dw-glow"></div><div id="dw-sun"></div>
+    <svg id="dw-hills" viewBox="0 0 1920 480" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path fill="#0a0f24" d="M0 480 V300 L120 250 L230 300 L340 210 L470 290 L560 240 L700 330 L820 260 L960 180 L1100 280 L1210 230 L1340 310 L1450 240 L1580 300 L1700 220 L1820 290 L1920 250 V480 Z"/><path fill="#05081a" d="M0 480 V380 L160 330 L300 390 L440 320 L620 400 L780 350 L960 410 L1140 340 L1300 400 L1480 330 L1640 395 L1800 340 L1920 380 V480 Z"/></svg>
+  </div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const GEO = /*GEO*/null/*END*/;
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const $ = (id) => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  $("dm-land").setAttribute("d", GEO.land); $("dm-poland").setAttribute("d", GEO.poland); $("dm-borders").setAttribute("d", GEO.borders);
+  const P = GEO.proj, rad = Math.PI / 180, merc = (f) => Math.log(Math.tan(Math.PI / 4 + f * rad / 2));
+  const project = (lon, lat) => [P.tx + P.k * (lon - P.lon0) * rad, P.ty - P.k * (merc(lat) - merc(P.lat0))];
+  const stopsRaw = (v.stops || "").split(";").map((x) => x.trim()).filter(Boolean).map((x) => {
+    const [he, en, lon, lat, side, mode, leg] = x.split("|"); const [px, py] = project(+lon, +lat);
+    return { he, en, lat: +lat, px, py, side: (side || "R").toUpperCase(), mode: (mode || "car").toLowerCase(), leg: leg || "" };
+  });
+  const xs0 = stopsRaw.map((s) => s.px), ys0 = stopsRaw.map((s) => s.py);
+  const bw = Math.max(...xs0) - Math.min(...xs0), bh = Math.max(...ys0) - Math.min(...ys0);
+  const cxs = (Math.min(...xs0) + Math.max(...xs0)) / 2, cys = (Math.min(...ys0) + Math.max(...ys0)) / 2;
+  // zoom: "auto" fits the stops into the map area on the right of the card, so close places (hotel -> trail) are still far apart
+  let Z = String(v.zoom || "1").toLowerCase() === "auto" ? Math.min(12, 880 / Math.max(bw, 1), 640 / Math.max(bh, 1)) : Math.max(1, parseFloat(v.zoom) || 1);
+  if (stopsRaw.length < 2) Z = Math.min(Z, 1);
+  Z = Math.max(1, Z);
+  const FX = 1250, FY = 540;
+  const stops = stopsRaw.map((s) => ({ ...s, x: FX + Z * (s.px - cxs), y: FY + Z * (s.py - cys) }));
+  $("dm-z").setAttribute("transform", `translate(${FX} ${FY}) scale(${Z}) translate(${-cxs} ${-cys})`);
+  for (const id of ["dm-land", "dm-poland", "dm-borders"]) $(id).setAttribute("vector-effect", "non-scaling-stroke");
+  const pxPerKm = (P.k * rad / 111.32 / Math.cos((stops[0] ? stopsRaw[0].lat : P.lat0) * rad)) * 0 + (P.k / 6371 / Math.cos((stopsRaw[0] ? stopsRaw[0].lat : P.lat0) * rad)) * Z;
+  MK.text($("dm-day"), v.day_label); MK.text($("dm-date"), v.date); MK.text($("dm-wd"), v.weekday); MK.text($("dm-places"), v.places);
+  if (v.chip) MK.text($("dm-chip"), v.chip); else $("dm-chip").style.display = "none";
+  let sb = null;
+  const recap = (v.mode || "day") === "recap";
+  const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || $("dm-g")).appendChild(e); return e; };
+  // routes between consecutive stops (curved)
+  const routes = [];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i], b = stops[i + 1], dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, walk = b.mode === "walk";
+    const bend = (i % 2 ? -1 : 1) * len * (walk ? 0.1 : 0.14), cx = (a.x + b.x) / 2 + (-dy / len) * bend, cy = (a.y + b.y) / 2 + (dx / len) * bend;
+    const d = `M${a.x} ${a.y} Q${cx} ${cy} ${b.x} ${b.y}`;
+    mk("path", { d, fill: "none", stroke: "rgba(255,255,255,.35)", "stroke-width": 4, "stroke-dasharray": "2 12", "stroke-linecap": "round" }, $("dm-routes"));
+    const r = mk("path", { d, fill: "none", stroke: walk ? "#6fe3ff" : "#FFD400", "stroke-width": 7, "stroke-linecap": "round", "stroke-dasharray": walk ? "1 16" : "" }, $("dm-routes"));
+    const L = r.getTotalLength(); if (!walk) { r.style.strokeDasharray = L; r.style.strokeDashoffset = L; }
+    let lab = null;
+    if (b.leg) {  // distance / time label in the middle of the leg
+      const mx = (a.x + b.x) / 2 * 0.5 + cx * 0.5, my = (a.y + b.y) / 2 * 0.5 + cy * 0.5;
+      lab = mk("g", { transform: `translate(${mx} ${my})` }, $("dm-routes"));
+      const w = Math.max(160, b.leg.length * 24 + 50);
+      mk("rect", { x: -w / 2, y: -28, width: w, height: 56, rx: 28, fill: "rgba(0,0,0,.72)", stroke: walk ? "#6fe3ff" : "#FFD400", "stroke-width": 3 }, lab);
+      const t = mk("text", { x: 0, y: 11, "text-anchor": "middle", style: "font:800 32px Heebo;fill:#fff" }, lab); t.textContent = (walk ? "🚶 " : "🚗 ") + b.leg;
+    }
+    routes.push({ r, L, walk, lab });
+  }
+  // pins
+  const pins = stops.map((s, i) => {
+    const g = mk("g", { transform: `translate(${s.x} ${s.y})` });
+    const ring = mk("circle", { r: 16, fill: "none", stroke: "#FFD400", "stroke-width": 3 }, g);
+    mk("circle", { r: 12, fill: "#FFD400", stroke: "#0b1f3a", "stroke-width": 4 }, g);
+    if (recap) { const n = mk("text", { y: 5, "text-anchor": "middle", style: "font:800 14px Heebo;fill:#0b1f3a" }, g); n.textContent = String(i + 1); }
+    const side = s.side, dxl = side === "L" ? -28 : side === "R" ? 28 : 0, anchor = side === "L" ? "end" : side === "R" ? "start" : "middle", dyl = side === "T" ? -62 : side === "B" ? 44 : -6;
+    const he = mk("text", { x: dxl, y: dyl, "text-anchor": anchor, class: "p-he" }, g); he.textContent = s.he; if (/[֐-׿]/.test(s.he)) he.setAttribute("direction", "rtl");
+    const en = mk("text", { x: dxl, y: dyl + 26, "text-anchor": anchor, class: "p-en" }, g); en.textContent = s.en;
+    return { g, ring };
+  });
+  // scale bar (a "nice" number of km, drawn to the true map scale)
+  { const nice = [0.2, 0.5, 1, 2, 5, 10, 20, 50, 100], target = 220 / pxPerKm; const km = nice.filter((n) => n <= target).pop() || nice[0];
+    const w = km * pxPerKm, g = mk("g", { transform: `translate(${1860 - w} 110)` }, document.getElementById("dm-svg"));
+    mk("rect", { x: -16, y: -44, width: w + 32, height: 74, rx: 12, fill: "rgba(0,0,0,.45)" }, g);
+    mk("path", { d: `M0 0 H${w} M0 -12 V12 M${w} -12 V12`, stroke: "#fff", "stroke-width": 5, fill: "none" }, g);
+    const t = mk("text", { x: w / 2, y: -16, "text-anchor": "middle", style: "font:800 30px Heebo;fill:#fff" }, g); t.textContent = km + " km"; sb = g; }
+  window.__timelines = window.__timelines || {};
+  const DAWN = String(v.dawn || "0") === "1", OFF = DAWN ? 1.1 : 0;
+  if (!DAWN) $("dm-dawn").style.display = "none";
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#dm-g", { scale: 1.12, svgOrigin: "1190 540" }, { scale: 1, svgOrigin: "1190 540", duration: D, ease: "power1.out" }, 0)
+    .fromTo(["#dm-land", "#dm-poland", "#dm-borders"], { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0)
+    .fromTo("#dm-day", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 0.1)
+    .fromTo("#dm-line", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, 0.4)
+    .fromTo("#dm-date", { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.55)
+    .fromTo("#dm-wd", { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.68)
+    .fromTo("#dm-places", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.85)
+    .fromTo("#dm-chip", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 1.6);
+  if (sb) tl.fromTo(sb, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1.0);
+  const T0 = 0.5, per = Math.min(1.1, (D - 1.6) / Math.max(1, stops.length));
+  pins.forEach((p, i) => {
+    const t = T0 + i * per;
+    tl.fromTo(p.g, { opacity: 0, scale: 0.2, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, t)
+      .fromTo(p.ring, { scale: 1, opacity: 1, transformOrigin: "center" }, { scale: 3, opacity: 0, duration: 0.8, ease: "power2.out" }, t + 0.35);
+    if (routes[i]) {
+      if (routes[i].walk) tl.fromTo(routes[i].r, { opacity: 0 }, { opacity: 1, duration: per * 0.7 }, t + 0.45);
+      else tl.fromTo(routes[i].r, { strokeDashoffset: routes[i].L }, { strokeDashoffset: 0, duration: per * 0.9, ease: "power1.inOut" }, t + 0.45);
+      if (routes[i].lab) tl.fromTo(routes[i].lab, { opacity: 0, scale: 0.6, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, t + 0.45 + per * 0.6);
+    }
+  });
+  tl.to("#dm-tl, #dm-map, #dm-scrim", { opacity: 0, duration: 0.35, ease: "power2.in" }, D - 0.35 - OFF);
+  const main = gsap.timeline({ paused: true });
+  if (DAWN) {
+    // a new day: night sky -> the sun climbs over the ridge, the sky warms, rays turn, then the light dissolves into the day card
+    const stars = $("dw-stars"); for (let i = 0; i < 46; i++) { const e = document.createElement("i"); e.style.left = ((i * 53) % 100) + "%"; e.style.top = ((i * 37) % 55) + "%"; stars.appendChild(e); main.fromTo(e, { opacity: 0.2 }, { opacity: 1, duration: 0.3 + (i % 4) * 0.1, yoyo: true, repeat: 3 }, (i % 7) * 0.05); }
+    main.fromTo("#dw-sun", { y: H * 0.32 }, { y: -H * 0.04, duration: 0.95, ease: "power2.out" }, 0)
+      .fromTo("#dw-glow", { opacity: 0, y: H * 0.32 }, { opacity: 1, y: -H * 0.04, duration: 0.95, ease: "power2.out" }, 0)
+      .fromTo("#dw-rays", { opacity: 0, rotation: -12, y: H * 0.32 }, { opacity: 1, rotation: 16, y: -H * 0.04, duration: 1.1, ease: "power1.out" }, 0)
+      .to("#dw-sky", { background: "linear-gradient(180deg, #2b3a76 0%, #d9798a 55%, #ffb36b 100%)", duration: 0.95, ease: "sine.inOut" }, 0)
+      .to("#dw-stars", { opacity: 0, duration: 0.5 }, 0.3)
+      .to("#dm-dawn", { opacity: 0, scale: 1.08, duration: 0.5, ease: "power2.in" }, OFF - 0.05);
+  }
+  tl.paused(false); main.add(tl, OFF);
+  window.__timelines["main"] = main;
+</script>
+</body>
+</html>

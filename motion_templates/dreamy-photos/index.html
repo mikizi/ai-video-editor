@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"photo1","type":"string","label":"Photo 1","default":""},{"id":"cap1","type":"string","label":"Caption 1","default":""},
+  {"id":"photo2","type":"string","label":"Photo 2","default":""},{"id":"cap2","type":"string","label":"Caption 2","default":""},
+  {"id":"photo3","type":"string","label":"Photo 3","default":""},{"id":"cap3","type":"string","label":"Caption 3","default":""},
+  {"id":"photo4","type":"string","label":"Photo 4","default":""},{"id":"cap4","type":"string","label":"Caption 4","default":""},
+  {"id":"photo5","type":"string","label":"Photo 5","default":""},{"id":"cap5","type":"string","label":"Caption 5","default":""},
+  {"id":"caption","type":"string","label":"Title","default":""},
+  {"id":"glow","type":"color","label":"Glow","default":"#FFC9A8"},
+  {"id":"tint","type":"color","label":"Tint","default":"#3a1d2e"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@200;300;500&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --glow: #FFC9A8; --tint: #3a1d2e; }
+  #root { width: __W__px; height: __H__px; overflow: hidden; background: var(--tint); }
+  #dp-back { position: absolute; inset: -8%; }
+  .bgp { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(calc(var(--u) * 3.2)) saturate(1.15) brightness(.78); opacity: 0; }
+  #dp-wash { background: radial-gradient(ellipse at 50% 45%, rgba(255,190,150,.20), rgba(60,20,50,.55) 100%); mix-blend-mode: normal; }
+  .light { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,226,196,.55), rgba(255,226,196,0) 68%); mix-blend-mode: screen; }
+  #dp-frames { position: absolute; inset: 0; }
+  .fr { position: absolute; left: 50%; top: 50%; opacity: 0; background: #fff8f0; padding: calc(var(--u) * 1.5); box-sizing: border-box; border-radius: calc(var(--u) * .7); box-shadow: 0 0 calc(var(--u) * 9) calc(var(--u) * 1.2) rgba(255,200,168,.38), 0 calc(var(--u) * 2.4) calc(var(--u) * 7) rgba(0,0,0,.5); }
+  .fr .ph { width: 100%; height: 100%; overflow: hidden; border-radius: calc(var(--u) * .3); position: relative; }
+  .fr img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .fr .sheen { position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,214,180,0) 30%, rgba(255,214,180,.28) 50%, rgba(255,214,180,0) 70%); transform: translateX(-120%); }
+  #dp-vig { background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(25,6,22,.62) 100%); }
+  #dp-cap { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 6); text-align: center; font-weight: 300; font-size: calc(var(--u) * 4.6); letter-spacing: .14em; color: #fff3e6; text-shadow: 0 0 calc(var(--u) * 2.4) rgba(255,190,150,.8), 0 calc(var(--u) * .4) calc(var(--u) * 2) rgba(0,0,0,.6); margin: 0; opacity: 0; }
+  #dp-title { position: absolute; left: 0; right: 0; top: calc(var(--u) * 5); text-align: center; font-weight: 200; font-size: calc(var(--u) * 5.4); letter-spacing: .2em; color: #fff3e6; text-shadow: 0 0 calc(var(--u) * 3) rgba(255,190,150,.8); margin: 0; opacity: 0; }
+  #dp-grain { opacity: .07; mix-blend-mode: overlay; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="dp-back" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="dp-wash" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="dp-lights" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"></div>
+  <div id="dp-frames" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="3"></div>
+  <div id="dp-vig" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="4"></div>
+  <div id="dp-tx" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="5"><h2 id="dp-title"></h2><div id="dp-cap"></div></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100, land = W >= H;
+  MK.colors({ "--glow": v.glow, "--tint": v.tint });
+  const items = [1, 2, 3, 4, 5].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const n = Math.max(items.length, 1);
+  const back = document.getElementById("dp-back"), fr = document.getElementById("dp-frames"), cap = document.getElementById("dp-cap");
+  const lights = document.getElementById("dp-lights");
+  // drifting warm lights (slow, rising like petals / bokeh)
+  const L = [];
+  for (let i = 0; i < 14; i++) {
+    const s = u * (5 + (i * 7) % 13), e = document.createElement("div");
+    e.className = "light"; e.style.width = e.style.height = s + "px";
+    e.style.left = ((i * 37) % 100) / 100 * W - s / 2 + "px"; e.style.top = ((i * 53) % 100) / 100 * H - s / 2 + "px";
+    lights.appendChild(e); L.push(e);
+  }
+  const tl = gsap.timeline({ paused: true });
+  L.forEach((e, i) => tl.fromTo(e, { y: u * 8, x: -u * 3, opacity: 0 }, { y: -u * (14 + i % 5 * 4), x: u * (4 + i % 4 * 2), opacity: .35 + (i % 3) * .2, duration: D, ease: "sine.inOut" }, 0));
+  const t0 = 0.2, tail = 0.9, step = (D - t0 - tail) / n, fade = Math.min(1.0, step * 0.4);
+  const frames = items.map((it, i) => {
+    // a frame that fits the picture: landscape ~ 62% W, portrait ~ 66% H; the border is always visible
+    const img = new Image(); img.src = "assets/" + it.src;
+    const bg = document.createElement("div"); bg.className = "bgp"; bg.style.backgroundImage = `url(assets/${it.src})`; back.appendChild(bg);
+    const f = document.createElement("div"); f.className = "fr";
+    f.innerHTML = `<div class="ph"><img src="assets/${it.src}"><div class="sheen"></div></div>`;
+    fr.appendChild(f);
+    return { f, bg, it, img };
+  });
+  function layout(k) {
+    const a = (k.img.naturalWidth || 4) / (k.img.naturalHeight || 3);
+    const pad = u * 1.5;
+    let hh = H * 0.70, ww = (hh - 2 * pad) * a + 2 * pad;
+    const mw = W * (land ? 0.72 : 0.88);
+    if (ww > mw) { ww = mw; hh = (ww - 2 * pad) / a + 2 * pad; }
+    k.f.style.width = ww + "px"; k.f.style.height = hh + "px"; k.f.style.marginLeft = -ww / 2 + "px"; k.f.style.marginTop = -hh / 2 - u * 1.5 + "px";
+  }
+  frames.forEach(layout);
+  Promise.all(frames.map((k) => k.img.decode ? k.img.decode().catch(() => {}) : null)).then(() => frames.forEach(layout));
+  frames.forEach((k, i) => {
+    const s = t0 + i * step, e = s + step, last = i === n - 1;
+    const dir = i % 2 ? 1 : -1;
+    gsap.set(k.f, { opacity: 0, scale: 0.9, rotation: dir * 1.4, y: u * 2.5 });
+    tl.to(k.bg, { opacity: 1, duration: fade, ease: "sine.inOut" }, s)
+      .fromTo(k.bg, { scale: 1.08, x: dir * u * 1.5 }, { scale: 1.2, x: -dir * u * 1.5, duration: step + fade, ease: "none" }, s)
+      .to(k.f, { opacity: 1, duration: fade, ease: "sine.out" }, s)
+      .to(k.f, { scale: 1.0, y: 0, rotation: dir * 0.4, duration: fade + 0.5, ease: "power2.out" }, s)
+      .to(k.f, { scale: 1.045, rotation: -dir * 0.3, duration: step - 0.2, ease: "none" }, s + fade + 0.5)
+      .fromTo(k.f.querySelector(".sheen"), { x: "-120%" }, { x: "120%", duration: 1.6, ease: "sine.inOut" }, s + fade * 0.6);
+    if (!last) tl.to(k.f, { opacity: 0, scale: 1.08, duration: fade, ease: "sine.in" }, e - fade * 0.2).to(k.bg, { opacity: 0, duration: fade, ease: "sine.in" }, e + fade * 0.3);
+    else tl.to(k.f, { opacity: 0, scale: 1.06, duration: 0.8, ease: "sine.in" }, D - 0.85).to(k.bg, { opacity: 0, duration: 0.8 }, D - 0.85);
+    // caption: soft fade-and-rise per photo
+    if (k.it.cap) {
+      const id = "c" + i; const d = document.createElement("div"); d.id = id; d.className = "capi"; d.style.cssText = "position:absolute;left:0;right:0;bottom:" + u * 6 + "px;text-align:center;font-weight:300;font-size:" + u * 4.6 + "px;letter-spacing:.14em;color:#fff3e6;text-shadow:0 0 " + u * 2.4 + "px rgba(255,190,150,.8),0 " + u * .4 + "px " + u * 2 + "px rgba(0,0,0,.6);opacity:0;white-space:nowrap";
+      document.getElementById("dp-tx").appendChild(d); MK.text(d, k.it.cap);
+      tl.fromTo(d, { y: u * 2, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "sine.out" }, s + fade + 0.2)
+        .to(d, { opacity: 0, duration: 0.5, ease: "sine.in" }, (last ? D - 0.9 : e - 0.1));
+    }
+  });
+  if (v.caption) { MK.text(document.getElementById("dp-title"), v.caption); tl.fromTo("#dp-title", { y: -u * 2, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: "sine.out" }, 0.3).to("#dp-title", { opacity: 0, duration: 0.6 }, D - 0.7); }
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

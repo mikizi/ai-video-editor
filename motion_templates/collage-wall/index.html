@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"photo1","type":"string","label":"photo1","default":""},{"id":"cap1","type":"string","label":"cap1","default":""},{"id":"photo2","type":"string","label":"photo2","default":""},{"id":"cap2","type":"string","label":"cap2","default":""},{"id":"photo3","type":"string","label":"photo3","default":""},{"id":"cap3","type":"string","label":"cap3","default":""},{"id":"photo4","type":"string","label":"photo4","default":""},{"id":"cap4","type":"string","label":"cap4","default":""},{"id":"photo5","type":"string","label":"photo5","default":""},{"id":"cap5","type":"string","label":"cap5","default":""},{"id":"photo6","type":"string","label":"photo6","default":""},{"id":"cap6","type":"string","label":"cap6","default":""},{"id":"caption","type":"string","label":"caption","default":""},{"id":"photo7","type":"string","label":"photo7","default":""},{"id":"cap7","type":"string","label":"cap7","default":""},{"id":"photo8","type":"string","label":"photo8","default":""},{"id":"cap8","type":"string","label":"cap8","default":""},{"id":"mode","type":"string","label":"mode","default":"fly"},{"id":"bg_video","type":"string","label":"bg_video","default":""},{"id":"accent","type":"color","label":"accent","default":"#FFD400"},{"id":"bg_from","type":"color","label":"bg_from","default":"#0c2238"},{"id":"bg_to","type":"color","label":"bg_to","default":"#2a6fb0"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@200;300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #0c2238; --bg2: #2a6fb0; }
+  #root { width: __W__px; height: __H__px; overflow: hidden; }
+  #cw-bg { background: radial-gradient(ellipse at 50% 45%, var(--bg2) 0%, var(--bg1) 85%); }
+  #cw-board { position: absolute; inset: 0; transform-origin: 50% 50%; }
+  .cwp { position: absolute; left: 0; top: 0; background: #fffdf7; padding: calc(var(--u) * 1.2); box-sizing: border-box; box-shadow: 0 calc(var(--u) * 1.4) calc(var(--u) * 4) rgba(0,0,0,.55); will-change: transform; }
+  .cwp .ph { width: 100%; overflow: hidden; position: relative; background: #222; }
+  .cwp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cwp .tape { position: absolute; left: 50%; top: calc(var(--u) * -1.5); width: calc(var(--u) * 9); height: calc(var(--u) * 3); margin-left: calc(var(--u) * -4.5); background: rgba(255,232,150,.78); transform: rotate(-3deg); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+  .cwp .cap { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * .3); text-align: center; color: #3a3550; font-weight: 500; font-size: calc(var(--u) * 2.2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; unicode-bidi: plaintext; }
+  #cw-title { position: absolute; left: 50%; bottom: calc(var(--u) * 4); transform: translateX(-50%); padding: calc(var(--u) * 1.2) calc(var(--u) * 4); border-radius: 99px; background: rgba(0,0,0,.62); border: 2px solid var(--accent); font-weight: 800; font-size: calc(var(--u) * 4.6); white-space: nowrap; margin: 0; opacity: 0; z-index: 50; unicode-bidi: plaintext; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="cw-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <video id="cw-vid" class="layer clip" src="assets/bg_video.mp4" muted playsinline data-start="0" data-duration="__DUR__" data-track-index="0" style="width:100%;height:100%;object-fit:cover;filter:blur(18px) brightness(.8) saturate(1.1);transform:scale(1.15)"></video>
+  <div id="cw-board" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="cw-tx" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><h2 id="cw-title"></h2></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100, land = W >= H;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const items = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const HASVID = !!v.bg_video; if (!HASVID) document.getElementById("cw-vid").style.display = "none"; else document.getElementById("cw-bg").style.display = "none";
+  const n = Math.max(items.length, 1), board = document.getElementById("cw-board");
+  // slot centres (fractions of the frame) and tilt: they overlap on purpose so the wall feels full
+  const SL = land
+    ? { 2: [[.30, .5, -4, .62], [.70, .5, 3, .62]], 3: [[.22, .5, -5, .62], [.52, .46, 3, .7], [.82, .52, -3, .6]], 4: [[.2, .32, -5, .5], [.5, .6, 3, .58], [.78, .3, 4, .5], [.8, .72, -4, .42]],
+        5: [[.17, .3, -5, .46], [.45, .66, 3, .5], [.5, .27, -2, .46], [.8, .32, 5, .48], [.82, .74, -4, .42]], 6: [[.15, .3, -5, .44], [.4, .68, 3, .46], [.43, .26, -2, .42], [.68, .62, 4, .46], [.84, .3, 5, .44], [.14, .74, -3, .4]] }
+    : { 2: [[.5, .3, -4, .34], [.5, .68, 3, .34]], 3: [[.5, .22, -4, .3], [.5, .5, 3, .3], [.5, .78, -3, .3]], 4: [[.32, .25, -5, .26], [.7, .38, 4, .26], [.3, .62, -4, .26], [.7, .78, 5, .24]], 5: [[.3, .2, -5, .22], [.7, .32, 4, .22], [.3, .5, -3, .22], [.7, .66, 5, .22], [.5, .84, -4, .2]], 6: [[.3, .18, -5, .2], [.7, .28, 4, .2], [.3, .44, -3, .2], [.7, .58, 5, .2], [.3, .74, -4, .2], [.7, .88, 3, .18]] };
+  const DROP = [[.22, .34, -7, .5], [.62, .3, 5, .46], [.85, .5, 9, .42], [.42, .58, -4, .48], [.14, .62, 6, .4], [.74, .62, -8, .44], [.5, .4, 3, .52], [.3, .2, 8, .36], [.9, .24, -6, .34], [.58, .72, 4, .36]];
+  const DROPMODE = String(v.mode || "fly") === "drop";
+  const slots = DROPMODE ? DROP.slice(0, Math.max(n, 2)) : SL[Math.max(2, Math.min(n, 6))];
+  const tl = gsap.timeline({ paused: true });
+  const cards = items.map((it, i) => {
+    const c = document.createElement("div"); c.className = "cwp"; c.innerHTML = `<div class="tape"></div><div class="ph"><img src="assets/${it.src}"></div><div class="cap"></div>`; board.appendChild(c);
+    const im = new Image(); im.src = "assets/" + it.src; MK.text(c.querySelector(".cap"), it.cap); return { c, im, it };
+  });
+  const place = () => cards.forEach((k, i) => {
+    const [fx, fy, rot, hf] = slots[i] || slots[slots.length - 1], a = (k.im.naturalWidth || 4) / (k.im.naturalHeight || 3), pad = u * 1.2, capH = k.it.cap ? u * 3.1 : u * 0.8;
+    let h = hf * H, w = (h - 2 * pad - capH) * a + 2 * pad; const mw = (land ? 0.34 : 0.7) * W; if (w > mw) { w = mw; h = (w - 2 * pad) / a + 2 * pad + capH; }
+    k.c.style.width = w + "px"; k.c.style.height = h + "px"; k.c.style.left = W * fx - w / 2 + "px"; k.c.style.top = H * fy - h / 2 + "px";
+    const ph = k.c.querySelector(".ph"); ph.style.height = h - 2 * pad - capH + "px"; k.rot = rot;
+  });
+  place(); Promise.all(cards.map((k) => (k.im.decode ? k.im.decode().catch(() => {}) : null))).then(place);
+  const t0 = 0.3, step = Math.min(DROPMODE ? 2.4 : 1.1, (D - t0 - (DROPMODE ? 2.2 : 2.6)) / n);
+  cards.forEach((k, i) => {
+    const t = t0 + i * step, [fx, fy, rot] = slots[i] || slots[slots.length - 1];
+    if (DROPMODE) {
+      // a photo is dropped onto the table from above: it starts big and soft (close to the lens), falls, lands with a small bounce,
+      // and the next one lands partly on top of it, so the table fills up over one continuous shot
+      const sh = "0 " + u * 1.2 + "px " + u * 3 + "px rgba(0,0,0,.55)", shHigh = "0 " + u * 9 + "px " + u * 12 + "px rgba(0,0,0,.35)";
+      gsap.set(k.c, { opacity: 0, scale: 1.55, y: -H * 0.18, rotation: rot + (i % 2 ? 16 : -16), zIndex: i + 1, boxShadow: shHigh, filter: "blur(7px)" });
+      tl.to(k.c, { opacity: 1, duration: 0.18 }, t)
+        .to(k.c, { scale: 1, y: 0, rotation: rot, filter: "blur(0px)", boxShadow: sh, duration: 0.55, ease: "power3.in" }, t)
+        .to(k.c, { scale: 1.035, duration: 0.09, ease: "power1.out" }, t + 0.55)
+        .to(k.c, { scale: 1, duration: 0.22, ease: "bounce.out" }, t + 0.64)
+        .to(k.c, { rotation: rot * 0.88, duration: 0.3, ease: "sine.out" }, t + 0.55);
+      return;
+    }
+    const from = [[-W * 0.7, -H * 0.2], [W * 0.7, -H * 0.3], [-W * 0.6, H * 0.5], [W * 0.7, H * 0.4], [0, -H * 0.8], [0, H * 0.8]][i % 6];
+    gsap.set(k.c, { opacity: 0, x: from[0], y: from[1], rotation: rot + (i % 2 ? 40 : -40), scale: 0.7, zIndex: i + 1 });
+    tl.to(k.c, { opacity: 1, duration: 0.2 }, t).to(k.c, { x: 0, y: 0, rotation: rot, scale: 1, duration: 0.85, ease: "back.out(1.25)" }, t);
+  });
+  tl.fromTo(board, { scale: 1 }, { scale: DROPMODE ? 1.045 : 1.07, duration: D - 0.3, ease: "none" }, 0.3);
+  if (v.caption) { MK.text(document.getElementById("cw-title"), v.caption); tl.fromTo("#cw-title", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, t0 + n * step + 0.1).to("#cw-title", { opacity: 0, duration: 0.4 }, D - 0.5); }
+  tl.to(board, { opacity: 0, duration: 0.45, ease: "power2.in" }, D - 0.5);
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+</script>
+</html>

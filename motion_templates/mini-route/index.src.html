@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"from_he","type":"string","label":"From he","default":"שדה התעופה קרקוב"},{"id":"from_en","type":"string","label":"From en","default":"KRAKÓW AIRPORT"},{"id":"from_ll","type":"string","label":"From","default":"19.785,50.078"},
+  {"id":"to_he","type":"string","label":"To he","default":"בראמה בגורצה"},{"id":"to_en","type":"string","label":"To en","default":"BRAMA W GORCE"},{"id":"to_ll","type":"string","label":"To","default":"20.075,49.466"},
+  {"id":"via_ll","type":"string","label":"Via","default":""},{"id":"info","type":"string","label":"Info","default":"95 ק״מ · 92 דק׳"},{"id":"zoom","type":"string","label":"Zoom","default":"1.45"},{"id":"total_km","type":"string","label":"Total km","default":""},{"id":"walk","type":"string","label":"Walk","default":"0"},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},{"id":"bg_from","type":"color","label":"Background 1","default":"#06172b"},{"id":"bg_to","type":"color","label":"Background 2","default":"#134a82"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #06172b; --bg2: #134a82; }
+  #root { width: __W__px; height: __H__px; }
+  #mr-bg { background: radial-gradient(ellipse at 50% 50%, var(--bg2) 0%, var(--bg1) 85%); }
+  #mr-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #mr-chip { position: absolute; left: 50%; top: 4%; transform: translateX(-50%); padding: 14px 40px; border-radius: 99px; background: rgba(0,0,0,.55); border: 2px solid rgba(255,255,255,.4); font-weight: 800; font-size: 62px; white-space: nowrap; }
+  .lb-he { font-weight: 800; font-size: 76px; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.75); stroke-width: 12px; stroke-linejoin: round; }
+  .lb-en { font-weight: 500; font-size: 44px; letter-spacing: .12em; fill: rgba(255,255,255,.9); paint-order: stroke; stroke: rgba(0,0,0,.75); stroke-width: 10px; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="mr-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="mr-map" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1">
+    <svg id="mr-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g id="mr-z"><path id="mr-land" fill="rgba(255,255,255,.05)"/><path id="mr-poland" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/><path id="mr-borders" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" vector-effect="non-scaling-stroke"/></g>
+      <g id="mr-g"></g>
+    </svg>
+  </div>
+  <div id="mr-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><div id="mr-chip"></div></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const GEO = /*GEO*/null/*END*/;
+  const v = MK.vars, D = MK.D;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const $ = (id) => document.getElementById(id), NS = "http://www.w3.org/2000/svg";
+  $("mr-land").setAttribute("d", GEO.land); $("mr-poland").setAttribute("d", GEO.poland); $("mr-borders").setAttribute("d", GEO.borders);
+  const P = GEO.proj, rad = Math.PI / 180, merc = (f) => Math.log(Math.tan(Math.PI / 4 + f * rad / 2));
+  const project = (ll) => { const [lon, lat] = ll.split(",").map(Number); return [P.tx + P.k * (lon - P.lon0) * rad, P.ty - P.k * (merc(lat) - merc(P.lat0))]; };
+  const pts = [project(v.from_ll), ...(v.via_ll ? v.via_ll.split(";").filter(Boolean).map(project) : []), project(v.to_ll)];
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2, Z = String(v.zoom).toLowerCase() === "auto" ? Math.min(14, 640 / Math.max(Math.max(...ys) - Math.min(...ys), 1), 900 / Math.max(Math.max(...xs) - Math.min(...xs), 1)) : Math.max(1, parseFloat(v.zoom) || 2);
+  const FX = 960, FY = 560, tp = pts.map(([x, y]) => [FX + Z * (x - cx), FY + Z * (y - cy)]);
+  $("mr-z").setAttribute("transform", `translate(${FX} ${FY}) scale(${Z}) translate(${-cx} ${-cy})`);
+  const mk = (tag, a, par) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); (par || $("mr-g")).appendChild(e); return e; };
+  // smooth route through the points (quadratic through midpoints)
+  let d = `M${tp[0][0]} ${tp[0][1]}`;
+  if (tp.length === 2) { const [a, b] = tp, dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1; d += ` Q${(a[0] + b[0]) / 2 + (-dy / len) * len * 0.12} ${(a[1] + b[1]) / 2 + (dx / len) * len * 0.12} ${b[0]} ${b[1]}`; }
+  else { for (let i = 1; i < tp.length - 1; i++) { const m = [(tp[i][0] + tp[i + 1][0]) / 2, (tp[i][1] + tp[i + 1][1]) / 2]; d += ` Q${tp[i][0]} ${tp[i][1]} ${i === tp.length - 2 ? tp[i + 1][0] : m[0]} ${i === tp.length - 2 ? tp[i + 1][1] : m[1]}`; } }
+  mk("path", { d, fill: "none", stroke: "rgba(255,255,255,.35)", "stroke-width": 8, "stroke-dasharray": "4 22", "stroke-linecap": "round" });
+  const WALK = String(v.walk) === "1";
+  const route = mk("path", { d, fill: "none", stroke: WALK ? "#6fe3ff" : "#FFD400", "stroke-width": 14, "stroke-linecap": "round" });
+  const L = route.getTotalLength(); route.style.strokeDasharray = L; route.style.strokeDashoffset = L;
+  const pin = (p, he, en, up) => { const g = mk("g", { transform: `translate(${p[0]} ${p[1]})` }); mk("circle", { r: 26, fill: "#FFD400", stroke: "#0b1f3a", "stroke-width": 8 }, g);
+    const h = mk("text", { x: 0, y: up ? -62 : 86, "text-anchor": "middle", class: "lb-he" }, g); h.textContent = he; const e = mk("text", { x: 0, y: up ? -18 : 130, "text-anchor": "middle", class: "lb-en" }, g); e.textContent = en; return g; };
+  const a = tp[0], b = tp[tp.length - 1], aUp = a[1] < b[1];   // the label of the higher stop goes above it, the lower one below it
+  const pa = pin(a, v.from_he, v.from_en, aUp), pb = pin(b, v.to_he, v.to_en, !aUp);
+  const car = mk("g", {}); mk("circle", { r: 34, fill: "rgba(255,212,0,.35)" }, car); mk("circle", { r: 20, fill: "#fff", stroke: "#0b1f3a", "stroke-width": 7 }, car);
+  MK.text($("mr-chip"), v.info); $("mr-chip").dir = "rtl";
+  const prog = { p: 0 };
+  const TOT = parseFloat(v.total_km) || 0;
+  const place = (p) => { const q = L * p, pt = route.getPointAtLength(q); car.setAttribute("transform", `translate(${pt.x} ${pt.y})`); route.style.strokeDashoffset = L * (1 - p);
+    if (TOT) { const left = Math.max(0, TOT * (1 - p)); $("mr-chip").textContent = left < 0.05 ? "הגענו! 🎉" : `נשארו ${left.toFixed(1)} ק״מ`; } };
+  place(0);
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#mr-z", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0)
+    .fromTo(pa, { opacity: 0, scale: .3, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 0.2)
+    .fromTo(prog, { p: 0 }, { p: 1, duration: D - 1.6, ease: "none", onUpdate: () => place(prog.p) }, 0.7)
+    .fromTo(pb, { opacity: 0, scale: .3, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 0.5)
+    .fromTo("#mr-chip", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.9);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

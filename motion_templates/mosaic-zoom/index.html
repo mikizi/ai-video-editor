@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"photo1","type":"string","label":"photo1","default":""},{"id":"cap1","type":"string","label":"cap1","default":""},{"id":"photo2","type":"string","label":"photo2","default":""},{"id":"cap2","type":"string","label":"cap2","default":""},{"id":"photo3","type":"string","label":"photo3","default":""},{"id":"cap3","type":"string","label":"cap3","default":""},{"id":"photo4","type":"string","label":"photo4","default":""},{"id":"cap4","type":"string","label":"cap4","default":""},{"id":"caption","type":"string","label":"caption","default":""},{"id":"accent","type":"color","label":"Accent","default":"#FFD400"},{"id":"bg_from","type":"color","label":"Bg1","default":"#1a1228"},{"id":"bg_to","type":"color","label":"Bg2","default":"#5a2d7a"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #1a1228; --bg2: #5a2d7a; }
+  #root { width: __W__px; height: __H__px; }
+  #mz-bg { background: radial-gradient(ellipse at 50% 40%, var(--bg2) 0%, var(--bg1) 82%); }
+  #mz-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .tile { position: absolute; overflow: hidden; border-radius: calc(var(--u) * 1.2); box-shadow: 0 calc(var(--u)*1.2) calc(var(--u)*4) rgba(0,0,0,.5); background: #222; }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #mz-cap { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 7); text-align: center; font-weight: 800; font-size: calc(var(--u) * 6.4); letter-spacing: .04em; margin: 0; text-shadow: 0 calc(var(--u)*.7) calc(var(--u)*3.5) rgba(0,0,0,.85); }
+  #mz-title { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5); text-align: center; font-weight: 300; font-size: calc(var(--u) * 6.2); letter-spacing: .12em; margin: 0; text-shadow: 0 calc(var(--u)*.6) calc(var(--u)*3) rgba(0,0,0,.7); }
+  #mz-title::after { content: ""; display: block; width: calc(var(--u) * 14); height: calc(var(--u) * .8); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 1.6) auto 0; }
+</style></head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="mz-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="mz-vp" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"><div id="mz-world"></div></div>
+  <div id="mz-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><h2 id="mz-cap"></h2><h2 id="mz-title"></h2></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const items = [1, 2, 3, 4].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const n = Math.max(items.length, 1);
+  const world = document.getElementById("mz-world");
+  // tile layout: wide frames -> a row/grid in the middle; each tile gets an (x, y, w, h) in screen px
+  const g = u * 1.6, areaW = W * 0.84, areaH = H * 0.66;
+  const cols = n <= 2 ? n : 2, rows = Math.ceil(n / cols);
+  const tw = (areaW - g * (cols - 1)) / cols, th = Math.min(tw * 0.75, (areaH - g * (rows - 1)) / rows);
+  const ox = (W - (cols * tw + (cols - 1) * g)) / 2, oy = (H - (rows * th + (rows - 1) * g)) / 2 - H * 0.02;
+  const tiles = items.map((it, i) => {
+    const c = i % cols, r = Math.floor(i / cols), x = ox + c * (tw + g), y = oy + r * (th + g);
+    const e = document.createElement("div"); e.className = "tile"; e.style.cssText = `left:${x}px;top:${y}px;width:${tw}px;height:${th}px`;
+    e.innerHTML = `<img src="assets/${it.src}">`; world.appendChild(e); return { e, x, y, w: tw, h: th, cap: it.cap };
+  });
+  MK.text(document.getElementById("mz-title"), v.caption || ""); if (!v.caption) document.getElementById("mz-title").style.display = "none";
+  const capEl = document.getElementById("mz-cap");
+  // camera transform that makes a tile fill ~86% of the frame
+  const focus = (t) => { const s = Math.min(W * 0.86 / t.w, H * 0.78 / t.h); return { scale: s, x: W / 2 - (t.x + t.w / 2) * s, y: H * 0.47 - (t.y + t.h / 2) * s }; };
+  const dive = Math.max(1.5, (D - 3.4) / n);
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#mz-bg", { scale: 1.15 }, { scale: 1, duration: D, ease: "none" }, 0)
+    .fromTo(tiles.map((t) => t.e), { opacity: 0, scale: 0.7, y: 60 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.5)", stagger: 0.15 }, 0.2)
+    .set(world, { x: 0, y: 0, scale: 1 }, 1.2);
+  tiles.forEach((t, i) => {
+    const f = focus(t), t0 = 1.5 + i * dive;
+    tl.to(world, { x: f.x, y: f.y, scale: f.scale, duration: 0.8, ease: "power3.inOut" }, t0)
+      .call(() => { capEl.textContent = t.cap; capEl.dir = MK.isRtl(t.cap) ? "rtl" : "ltr"; }, [], t0 + 0.3)
+      .fromTo(capEl, { y: 24, opacity: 0 }, { y: 0, opacity: t.cap ? 1 : 0, duration: 0.5, ease: "power3.out" }, t0 + 0.4)
+      .to(capEl, { opacity: 0, duration: 0.3 }, t0 + dive - 0.45)
+      .to(world, { x: 0, y: 0, scale: 1, duration: 0.7, ease: "power3.inOut" }, t0 + dive - 0.55);
+  });
+  tl.fromTo("#mz-title", { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, D - 1.9)
+    .to(["#mz-vp", "#mz-title"], { opacity: 0, duration: 0.45, ease: "power2.in" }, D - 0.5);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

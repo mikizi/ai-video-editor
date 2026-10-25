@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"title","type":"string","label":"Title","default":"בדרך לפולין"},
+  {"id":"from_code","type":"string","label":"From (code)","default":"TLV"},
+  {"id":"from_city","type":"string","label":"From (city)","default":"תל אביב"},
+  {"id":"to_code","type":"string","label":"To (code)","default":"KRK"},
+  {"id":"to_city","type":"string","label":"To (city)","default":"קרקוב"},
+  {"id":"info","type":"string","label":"Info chip","default":"2,350 ק״מ · 3 שעות 50 דק׳"},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#07182e"},
+  {"id":"bg_to","type":"color","label":"Background 2","default":"#14508f"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #07182e; --bg2: #14508f; }
+  #root { width: __W__px; height: __H__px; }
+  #rm-bg { background: radial-gradient(ellipse at 50% 55%, var(--bg2) 0%, var(--bg1) 78%); }
+  #rm-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* title on the right side, clear of the route */
+  #rm-top { position: absolute; right: calc(var(--u) * 6); top: 50%; transform: translateY(-50%); text-align: right; max-width: 38%; }
+  #rm-title { font-weight: 300; font-size: calc(var(--u) * 9); line-height: 1.1; letter-spacing: .06em; margin: 0; text-shadow: 0 calc(var(--u) * .8) calc(var(--u) * 4) rgba(0,0,0,.6); }
+  #rm-title::after { content: ""; display: block; width: calc(var(--u) * 14); height: calc(var(--u) * .9); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 2.2) 0 0 auto; }
+  #rm-chip { position: absolute; left: 50%; bottom: calc(var(--u) * 2.6); transform: translateX(-50%); padding: calc(var(--u) * 1.6) calc(var(--u) * 3.4); border-radius: 99px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); font-weight: 500; font-size: calc(var(--u) * 3.6); letter-spacing: .06em; white-space: nowrap; }
+  .pin-code { font-weight: 800; font-size: 36px; letter-spacing: .12em; fill: #fff; }
+  .pin-city { font-weight: 500; font-size: 28px; fill: rgba(255,255,255,.85); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="rm-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="rm-layer" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1">
+    <svg id="rm-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g id="rm-map">
+        <path id="rm-land" fill="rgba(255,255,255,.10)"/>
+        <path id="rm-borders" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+        <path id="rm-poland" fill="rgba(255,212,0,.0)" stroke="rgba(255,212,0,.9)" stroke-width="2.5"/>
+        <path id="rm-israel" fill="rgba(255,212,0,.0)" stroke="rgba(255,212,0,.9)" stroke-width="2.5"/>
+        <path id="rm-route-base" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="4" stroke-dasharray="3 14" stroke-linecap="round"/>
+        <path id="rm-route" fill="none" stroke="#FFD400" stroke-width="6" stroke-linecap="round"/>
+        <g id="rm-pin-a"><circle class="ring" r="14" fill="none" stroke="#FFD400" stroke-width="3"/><circle r="11" fill="#FFD400" stroke="#0b1f3a" stroke-width="4"/><text class="pin-code" id="rm-a-code" dy="-34" text-anchor="middle"></text><text class="pin-city" id="rm-a-city" dy="-4" text-anchor="middle"></text></g>
+        <g id="rm-pin-b"><circle class="ring" r="14" fill="none" stroke="#FFD400" stroke-width="3"/><circle r="11" fill="#FFD400" stroke="#0b1f3a" stroke-width="4"/><text class="pin-code" id="rm-b-code" dy="-34" text-anchor="middle"></text><text class="pin-city" id="rm-b-city" dy="-4" text-anchor="middle"></text></g>
+        <g id="rm-plane"><g transform="scale(1.25) translate(-32 -32)"><path fill="#fff" stroke="#0b1f3a" stroke-width="2" d="M32 3 L37.5 25 L61 38 L61 44 L37.5 38.5 L36 53 L45 58 L45 62 L32 59 L19 62 L19 58 L28 53 L26.5 38.5 L3 44 L3 38 L26.5 25 Z"/></g></g>
+      </g>
+    </svg>
+    <div id="rm-top"><h1 id="rm-title"></h1></div>
+    <div id="rm-chip"></div>
+  </div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const GEO = /*GEO*/null/*END*/;
+  const v = MK.vars, D = MK.D;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const $ = (id) => document.getElementById(id);
+  $("rm-land").setAttribute("d", GEO.land); $("rm-borders").setAttribute("d", GEO.borders);
+  $("rm-poland").setAttribute("d", GEO.poland); $("rm-israel").setAttribute("d", GEO.israel);
+  const [ax, ay] = GEO.tlv, [bx, by] = GEO.krk;
+  // curved flight path: control point pushed to the side of the straight line
+  const mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy);
+  const cx = mx + (-dy / len) * len * 0.22, cy = my + (dx / len) * len * 0.22;
+  const d = `M${ax} ${ay} Q${cx} ${cy} ${bx} ${by}`;
+  $("rm-route-base").setAttribute("d", d); $("rm-route").setAttribute("d", d);
+  const route = $("rm-route"), L = route.getTotalLength();
+  route.style.strokeDasharray = L; route.style.strokeDashoffset = L;
+  $("rm-pin-a").setAttribute("transform", `translate(${ax} ${ay})`); $("rm-pin-b").setAttribute("transform", `translate(${bx} ${by})`);
+  MK.text($("rm-a-code"), v.from_code); MK.text($("rm-a-city"), v.from_city); MK.text($("rm-b-code"), v.to_code); MK.text($("rm-b-city"), v.to_city);
+  // city labels sit away from the route: first pin's label below, second pin's label below too
+  $("rm-a-code").setAttribute("dy", "62"); $("rm-a-city").setAttribute("dy", "100");
+  $("rm-b-code").setAttribute("dy", "62"); $("rm-b-city").setAttribute("dy", "100");
+  MK.text($("rm-title"), v.title); MK.text($("rm-chip"), v.info);
+  const plane = $("rm-plane");
+  const place = (p) => {
+    const q = Math.min(L, Math.max(0, p * L)), a = route.getPointAtLength(q), b = route.getPointAtLength(Math.min(L, q + 2)), c = route.getPointAtLength(Math.max(0, q - 2));
+    const ang = Math.atan2(b.y - c.y, b.x - c.x) * 180 / Math.PI + 90;
+    plane.setAttribute("transform", `translate(${a.x} ${a.y}) rotate(${ang})`);
+    route.style.strokeDashoffset = L * (1 - p);
+  };
+  place(0);
+  const prog = { p: 0 };
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#rm-map", { scale: 1.18, transformOrigin: "50% 50%" }, { scale: 1, duration: D, ease: "power1.out" }, 0)
+    .fromTo(["#rm-land", "#rm-borders"], { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 0)
+    .fromTo("#rm-israel", { fill: "rgba(255,212,0,0)" }, { fill: "rgba(255,212,0,0.38)", duration: 0.5 }, 0.35)
+    .fromTo(["#rm-pin-a", "#rm-pin-b"], { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.15 }, 0.4)
+    .fromTo("#rm-top", { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 0.3)
+    .fromTo("#rm-route-base", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.5)
+    .fromTo(prog, { p: 0 }, { p: 1, duration: 2.1, ease: "power1.inOut", onUpdate: () => place(prog.p) }, 0.8)
+    .fromTo("#rm-pin-b .ring", { scale: 1, opacity: 1, transformOrigin: "50% 50%" }, { scale: 3.2, opacity: 0, duration: 0.8, ease: "power2.out" }, 2.8)
+    .fromTo("#rm-poland", { fill: "rgba(255,212,0,0)" }, { fill: "rgba(255,212,0,0.38)", duration: 0.6 }, 2.8)
+    .fromTo("#rm-chip", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 2.6)
+    .to("#rm-layer", { opacity: 0, duration: 0.35, ease: "power2.in" }, D - 0.35);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

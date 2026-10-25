@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Highlight Editor"
+  short_description: "Turn footage folders into polished highlight films"
+  default_prompt: "Use $video-highlight-editor to turn my source-video folder into a polished Remotion highlight film."

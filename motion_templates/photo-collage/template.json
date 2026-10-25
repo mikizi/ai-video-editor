@@ -1,0 +1,16 @@
+{
+  "id": "photo-collage",
+  "label": "Photo collage",
+  "description": "2 to 4 photos fly in as little cards and settle, with an optional caption.",
+  "default_seconds": 4,
+  "fields": [
+    {"id": "photo1", "label": "Photo 1", "type": "photo", "default": ""},
+    {"id": "photo2", "label": "Photo 2", "type": "photo", "default": ""},
+    {"id": "photo3", "label": "Photo 3 (optional)", "type": "photo", "default": ""},
+    {"id": "photo4", "label": "Photo 4 (optional)", "type": "photo", "default": ""},
+    {"id": "caption", "label": "Caption", "type": "string", "default": ""},
+    {"id": "accent", "label": "Accent color", "type": "color", "default": "#FFD400"},
+    {"id": "bg_from", "label": "Background 1", "type": "color", "default": "#14213D"},
+    {"id": "bg_to", "label": "Background 2", "type": "color", "default": "#3A86FF"}
+  ]
+}

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"photo1","type":"string","label":"Photo 1 (file in assets/)","default":""},
+  {"id":"photo2","type":"string","label":"Photo 2","default":""},
+  {"id":"photo3","type":"string","label":"Photo 3","default":""},
+  {"id":"photo4","type":"string","label":"Photo 4","default":""},
+  {"id":"caption","type":"string","label":"Caption","default":""},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#14213D"},
+  {"id":"bg_to","type":"color","label":"Background 2","default":"#3A86FF"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;800;900&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #14213D; --bg2: #3A86FF; }
+  #root { width: __W__px; height: __H__px; }
+  #pc-bg { background: linear-gradient(150deg, var(--bg1) 0%, var(--bg2) 100%); }
+  .card { position: absolute; background: #fff; box-sizing: border-box; box-shadow: 0 calc(var(--u) * 1.5) calc(var(--u) * 5) rgba(0,0,0,.45); padding: calc(var(--u) * 1.6); }
+  .card img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  #pc-cap { position: absolute; left: 0; right: 0; text-align: center; font-weight: 900; font-size: calc(var(--u) * 8); text-shadow: 0 calc(var(--u) * .8) calc(var(--u) * 3) rgba(0,0,0,.5); margin: 0; padding: 0 calc(var(--u) * 6); }
+  #pc-cap span { background: var(--accent); color: #111; padding: .05em .35em; border-radius: calc(var(--u) * 1.2); display: inline-block; text-shadow: none; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="pc-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="pc-cards" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="pc-layer" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><p id="pc-cap"></p></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const photos = [v.photo1, v.photo2, v.photo3, v.photo4].filter(Boolean).slice(0, 4);
+  const n = Math.max(photos.length, 1);
+  const cap = document.getElementById("pc-cap");
+  if (v.caption) { cap.innerHTML = "<span></span>"; MK.text(cap.firstChild, v.caption); } else { cap.style.display = "none"; }
+  const u = Math.min(W, H) / 100;
+  const capH = v.caption ? u * 16 : 0;
+  // Area for cards: whole frame minus the caption strip at the bottom.
+  const areaW = W, areaH = H - capH - u * 6;
+  cap.style.top = (areaH + u * 3) + "px";
+  // Grid: vertical frames stack cards in a column, wide frames put them in a row.
+  const cols = H > W ? (n === 4 ? 2 : 1) : (n === 1 ? 1 : n === 2 ? 2 : n === 3 ? 3 : 2);
+  const rows = Math.ceil(n / cols);
+  const cellW = areaW / cols, cellH = areaH / rows;
+  const rot = [-5, 4, -3, 5];
+  const cardsEl = document.getElementById("pc-cards");
+  const els = photos.map((p, i) => {
+    const c = document.createElement("div");
+    c.className = "card";
+    const w = Math.min(cellW * 0.82, cellH * 0.82 * 1.0), h = Math.min(cellH * 0.86, w * 1.2);
+    const cw = Math.min(cellW * 0.82, h * 0.85);
+    c.style.width = cw + "px"; c.style.height = h + "px";
+    const col = i % cols, row = Math.floor(i / cols);
+    c.style.left = (col * cellW + (cellW - cw) / 2) + "px";
+    c.style.top = (row * cellH + (cellH - h) / 2 + u * 3) + "px";
+    const img = document.createElement("img"); img.src = "assets/" + p; c.appendChild(img);
+    cardsEl.appendChild(c);
+    return c;
+  });
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#pc-bg", { scale: 1.2 }, { scale: 1, duration: D, ease: "none" }, 0);
+  els.forEach((c, i) => {
+    const fromX = (i % 2 ? 1 : -1) * W * 0.9, t = 0.15 + i * 0.28;
+    tl.fromTo(c, { x: fromX, y: -H * 0.2, rotation: rot[i] * 6, opacity: 0 },
+                 { x: 0, y: 0, rotation: rot[i], opacity: 1, duration: 0.8, ease: "back.out(1.3)" }, t)
+      .to(c, { rotation: rot[i] * 0.4, y: (i % 2 ? -1 : 1) * u * 1.2, duration: D - t - 1.2, ease: "sine.inOut" }, t + 0.8)
+      .to(c, { y: "-=" + H * 0.15, opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+  });
+  if (v.caption) {
+    tl.fromTo("#pc-cap", { y: 60, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.8)" }, 0.15 + n * 0.28)
+      .to("#pc-cap", { opacity: 0, duration: 0.3 }, D - 0.35);
+  }
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

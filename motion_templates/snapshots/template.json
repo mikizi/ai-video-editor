@@ -1,0 +1,110 @@
+{
+  "id": "snapshots",
+  "label": "Snapshots",
+  "description": "A camera-roll moment: each photo flashes full-screen like a shutter click, then shrinks into a tilted polaroid on a wall with its own small caption. 1-4 photos.",
+  "default_seconds": 6,
+  "fields": [
+    {
+      "id": "photo1",
+      "label": "Photo 1",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "shape1",
+      "label": "Shape 1 (L wide / P tall / S square)",
+      "type": "string",
+      "default": "L"
+    },
+    {
+      "id": "cap1",
+      "label": "Caption 1",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo2",
+      "label": "Photo 2 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "shape2",
+      "label": "Shape 2",
+      "type": "string",
+      "default": "L"
+    },
+    {
+      "id": "cap2",
+      "label": "Caption 2",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo3",
+      "label": "Photo 3 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "shape3",
+      "label": "Shape 3",
+      "type": "string",
+      "default": "L"
+    },
+    {
+      "id": "cap3",
+      "label": "Caption 3",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo4",
+      "label": "Photo 4 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "shape4",
+      "label": "Shape 4",
+      "type": "string",
+      "default": "L"
+    },
+    {
+      "id": "cap4",
+      "label": "Caption 4",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "caption",
+      "label": "Title (bottom)",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#1a1030"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#7b2d5e"
+    },
+    {
+      "id": "bg_video",
+      "label": "Backdrop video (blurred, optional)",
+      "type": "video",
+      "default": ""
+    }
+  ]
+}

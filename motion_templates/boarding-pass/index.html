@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"from_code","type":"string","label":"From (code)","default":"TLV"},
+  {"id":"from_city","type":"string","label":"From (city)","default":"תל אביב"},
+  {"id":"to_code","type":"string","label":"To (code)","default":"KRK"},
+  {"id":"to_city","type":"string","label":"To (city)","default":"קרקוב"},
+  {"id":"date","type":"string","label":"Date","default":"25.09.2026"},
+  {"id":"depart","type":"string","label":"Departs","default":"05:40"},
+  {"id":"flight","type":"string","label":"Flight","default":"LO2112"},
+  {"id":"pax","type":"string","label":"Passengers","default":"11"},
+  {"id":"caption","type":"string","label":"Caption","default":"הסיפור מתחיל"},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#0B1F3A"},
+  {"id":"bg_to","type":"color","label":"Background 2","default":"#2A6FDB"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800;900&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #0B1F3A; --bg2: #2A6FDB; --ink: #14213d; --paper: #fbf8f1; }
+  #root { width: __W__px; height: __H__px; }
+  #bp-bg { background: linear-gradient(150deg, var(--bg1) 0%, var(--bg2) 100%); }
+  #bp-glow { background: radial-gradient(circle at 50% 42%, rgba(255,255,255,.22), transparent 58%); }
+  #bp-flash { background: #fff; }
+  #bp-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 5); width: 100%; height: 100%; }
+  #bp-card { position: relative; width: min(calc(var(--w) * .88), calc(var(--u) * 122)); background: var(--paper); color: var(--ink); border-radius: calc(var(--u) * 2.4);
+    box-shadow: 0 calc(var(--u) * 3) calc(var(--u) * 9) rgba(0,0,0,.45); padding: calc(var(--u) * 3.4) calc(var(--u) * 4.6) calc(var(--u) * 3); box-sizing: border-box; direction: ltr; }
+  #bp-card::before, #bp-card::after { content: ""; position: absolute; top: 61%; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; background: var(--bg1); }
+  #bp-card::before { left: calc(var(--u) * -2); } #bp-card::after { right: calc(var(--u) * -2); }
+  .bp-top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: calc(var(--u) * 2.3); letter-spacing: .18em; text-transform: uppercase; color: #5b6b8c; }
+  .bp-top b { color: var(--ink); letter-spacing: .12em; }
+  .bp-route { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: calc(var(--u) * 3); margin: calc(var(--u) * 2.4) 0 calc(var(--u) * 2.6); }
+  .bp-air { text-align: center; }
+  .bp-code { font-weight: 900; font-size: calc(var(--u) * 13); line-height: .95; letter-spacing: .02em; }
+  .bp-city { font-weight: 500; font-size: calc(var(--u) * 3.6); color: #44537a; margin-top: calc(var(--u) * .8); direction: rtl; }
+  .bp-track { position: relative; height: calc(var(--u) * 7); }
+  .bp-line { position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: calc(var(--u) * .7) dashed #9aa7c4; transform-origin: left center; }
+  .bp-plane { position: absolute; left: 0; top: 50%; width: calc(var(--u) * 6.4); height: calc(var(--u) * 6.4); margin: calc(var(--u) * -3.2) 0 0 calc(var(--u) * -3.2); color: var(--ink); transform: rotate(90deg); }
+  .bp-dot { position: absolute; top: 50%; width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6); margin-top: calc(var(--u) * -.8); border-radius: 50%; background: var(--accent); border: calc(var(--u) * .45) solid var(--ink); }
+  .bp-dot.a { left: calc(var(--u) * -.8); } .bp-dot.b { right: calc(var(--u) * -.8); }
+  .bp-perf { border-top: calc(var(--u) * .5) dashed #c9cfdd; margin: 0 calc(var(--u) * -1) calc(var(--u) * 2.2); }
+  .bp-row { display: flex; justify-content: space-between; align-items: flex-end; gap: calc(var(--u) * 3); }
+  .bp-cell small { display: block; font-weight: 800; font-size: calc(var(--u) * 1.9); letter-spacing: .16em; text-transform: uppercase; color: #7a88a8; }
+  .bp-cell span { display: block; font-weight: 900; font-size: calc(var(--u) * 4.6); margin-top: calc(var(--u) * .4); }
+  .bp-bars { flex: 1; height: calc(var(--u) * 7.5); max-width: 36%; background: repeating-linear-gradient(90deg, var(--ink) 0 calc(var(--u) * .5), transparent calc(var(--u) * .5) calc(var(--u) * 1), var(--ink) calc(var(--u) * 1) calc(var(--u) * 2), transparent calc(var(--u) * 2) calc(var(--u) * 2.6), var(--ink) calc(var(--u) * 2.6) calc(var(--u) * 3), transparent calc(var(--u) * 3) calc(var(--u) * 3.8)); transform-origin: left center; border-radius: calc(var(--u) * .3); }
+  #bp-caption { font-weight: 300; font-size: calc(var(--u) * 9); line-height: 1.05; text-align: center; letter-spacing: .06em; text-shadow: 0 calc(var(--u) * 1) calc(var(--u) * 4) rgba(0,0,0,.45); margin: 0; }
+  #bp-caption .w { font-weight: 300; }
+  #bp-rule { width: calc(var(--u) * 20); height: calc(var(--u) * .9); border-radius: 99px; background: var(--accent); transform-origin: center; margin-top: calc(var(--u) * -2); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="bp-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="bp-glow" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="bp-layer" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2">
+    <div id="bp-stage">
+      <div id="bp-card">
+        <div class="bp-top"><span>Boarding pass</span><b id="bp-flight"></b></div>
+        <div class="bp-route">
+          <div class="bp-air"><div class="bp-code" id="bp-from"></div><div class="bp-city" id="bp-fromc"></div></div>
+          <div class="bp-track">
+            <div class="bp-line" id="bp-line"></div>
+            <div class="bp-dot a"></div><div class="bp-dot b"></div>
+            <svg class="bp-plane" id="bp-plane" viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 3 L37.5 25 L61 38 L61 44 L37.5 38.5 L36 53 L45 58 L45 62 L32 59 L19 62 L19 58 L28 53 L26.5 38.5 L3 44 L3 38 L26.5 25 Z"/></svg>
+          </div>
+          <div class="bp-air"><div class="bp-code" id="bp-to"></div><div class="bp-city" id="bp-toc"></div></div>
+        </div>
+        <div class="bp-perf"></div>
+        <div class="bp-row">
+          <div class="bp-cell"><small>Date</small><span id="bp-date"></span></div>
+          <div class="bp-cell"><small>Departs</small><span id="bp-dep"></span></div>
+          <div class="bp-cell"><small>Passengers</small><span id="bp-pax"></span></div>
+          <div class="bp-bars" id="bp-bars"></div>
+        </div>
+      </div>
+      <h1 id="bp-caption"></h1>
+      <div id="bp-rule"></div>
+    </div>
+  </div>
+  <div id="bp-flash" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="3"></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const $ = (id) => document.getElementById(id);
+  MK.text($("bp-flight"), v.flight); MK.text($("bp-from"), v.from_code); MK.text($("bp-fromc"), v.from_city);
+  MK.text($("bp-to"), v.to_code); MK.text($("bp-toc"), v.to_city); MK.text($("bp-date"), v.date);
+  MK.text($("bp-dep"), v.depart); MK.text($("bp-pax"), v.pax);
+  const ws = MK.words($("bp-caption"), v.caption);
+  const trackW = () => document.querySelector(".bp-track").offsetWidth;   // layout width: unaffected by the card's scale animation
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#bp-bg", { scale: 1.2 }, { scale: 1, duration: D, ease: "none" }, 0)
+    .fromTo("#bp-glow", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "power2.out" }, 0)
+    // camera flash, then the card snaps in
+    .fromTo("#bp-flash", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "power3.out" }, 0)
+    .fromTo("#bp-card", { scale: 1.45, rotation: -5, y: 70, opacity: 0 }, { scale: 1, rotation: 0, y: 0, opacity: 1, duration: 0.75, ease: "back.out(1.5)" }, 0.12)
+    .fromTo(["#bp-from", "#bp-to"], { scale: 0.55, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)", stagger: 0.12 }, 0.55)
+    .fromTo(["#bp-fromc", "#bp-toc"], { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out", stagger: 0.12 }, 0.8)
+    .fromTo("#bp-line", { scaleX: 0 }, { scaleX: 1, duration: 1.3, ease: "power2.inOut" }, 0.9)
+    .fromTo("#bp-plane", { x: 0 }, { x: () => trackW() - Math.min(MK.W, MK.H) / 100 * 5.2, duration: 1.3, ease: "power2.inOut" }, 0.9)
+    .fromTo(".bp-cell", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.1 }, 1.5)
+    .fromTo("#bp-bars", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.out" }, 1.9)
+    .fromTo(ws, { yPercent: 115 }, { yPercent: 0, duration: 0.7, ease: "power3.out", stagger: 0.1 }, 2.2)
+    .fromTo("#bp-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 2.6)
+    .to("#bp-card", { scale: 1.03, duration: D - 3.0, ease: "none" }, 2.0)
+    // lift away
+    .to("#bp-card", { y: -140, scale: 0.9, opacity: 0, duration: 0.45, ease: "power2.in" }, D - 0.5)
+    .to(["#bp-caption", "#bp-rule"], { opacity: 0, y: -30, duration: 0.35, ease: "power2.in" }, D - 0.4);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

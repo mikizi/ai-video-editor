@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"title","type":"string","label":"Title","default":"Our Trip"},
+  {"id":"subtitle","type":"string","label":"Subtitle","default":"Summer 2026"},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#0E2A47"},
+  {"id":"bg_to","type":"color","label":"Background 2","default":"#19D3C5"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;800;900&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #0E2A47; --bg2: #19D3C5; }
+  #root { width: __W__px; height: __H__px; }
+  #tc-bg { background: linear-gradient(140deg, var(--bg1) 0%, var(--bg2) 100%); }
+  #tc-glow { background: radial-gradient(circle at 50% 45%, rgba(255,255,255,.28), transparent 55%); }
+  #tc-sweep { width: 40%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent); transform: skewX(-18deg); }
+  #tc-content { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 calc(var(--u) * 8); box-sizing: border-box; width: 100%; height: 100%; }
+  #tc-title { font-weight: 900; font-size: calc(var(--u) * 15); line-height: 1.02; letter-spacing: -0.01em; max-width: 100%; text-shadow: 0 calc(var(--u) * 1) calc(var(--u) * 4) rgba(0,0,0,.35); margin: 0; }
+  #tc-bar { width: calc(var(--u) * 26); height: calc(var(--u) * 1.4); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 4) 0 calc(var(--u) * 3); transform-origin: center; }
+  #tc-sub { font-weight: 500; font-size: calc(var(--u) * 5.2); letter-spacing: .08em; text-transform: uppercase; opacity: .95; margin: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="tc-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="tc-glow" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="tc-sweep" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"></div>
+  <div id="tc-layer" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="3">
+    <div id="tc-content">
+      <h1 id="tc-title"></h1>
+      <div id="tc-bar"></div>
+      <p id="tc-sub"></p>
+    </div>
+  </div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const ws = MK.words(document.getElementById("tc-title"), v.title);
+  MK.text(document.getElementById("tc-sub"), v.subtitle);
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#tc-bg", { scale: 1.25 }, { scale: 1, duration: D, ease: "none" }, 0)
+    .fromTo("#tc-glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1.1, duration: 1.2, ease: "power2.out" }, 0)
+    .fromTo(ws, { yPercent: 110, scale: 0.8 }, { yPercent: 0, scale: 1, duration: 0.7, ease: "back.out(1.8)", stagger: 0.09 }, 0.15)
+    .fromTo("#tc-bar", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, 0.55)
+    .fromTo("#tc-sub", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.75)
+    .fromTo("#tc-sweep", { x: 0 }, { x: MK.W * 2.2, duration: 1.1, ease: "power2.inOut" }, 0.9)
+    .to("#tc-content", { scale: 1.06, duration: D - 1.4, ease: "none" }, 1.0)
+    .to("#tc-content", { opacity: 0, scale: 1.25, duration: 0.35, ease: "power2.in" }, D - 0.35);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

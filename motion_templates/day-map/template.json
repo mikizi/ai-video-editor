@@ -1,0 +1,80 @@
+{
+  "id": "day-map",
+  "label": "Day map",
+  "description": "A day card on a real map of southern Poland: big day number, date and weekday on the left, the day's places pinned and connected by an animated route on the right. Also works as a whole-trip recap.",
+  "default_seconds": 4.2,
+  "fields": [
+    {
+      "id": "day_label",
+      "label": "Day label",
+      "type": "string",
+      "default": "DAY 1"
+    },
+    {
+      "id": "date",
+      "label": "Date",
+      "type": "string",
+      "default": "25.09.2026"
+    },
+    {
+      "id": "weekday",
+      "label": "Weekday",
+      "type": "string",
+      "default": "יום שישי"
+    },
+    {
+      "id": "places",
+      "label": "Places (subtitle)",
+      "type": "string",
+      "default": "קרקוב · זאקופנה"
+    },
+    {
+      "id": "stops",
+      "label": "Stops: he|en|lon|lat|side;...  (side L/R/T/B)",
+      "type": "string",
+      "default": "קרקוב|KRAKÓW|19.945|50.065|L;זאקופנה|ZAKOPANE|19.95|49.30|L"
+    },
+    {
+      "id": "chip",
+      "label": "Info chip (optional)",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "mode",
+      "label": "Mode: day or recap",
+      "type": "string",
+      "default": "day"
+    },
+    {
+      "id": "zoom",
+      "label": "Map zoom (1 = region, 3 = close)",
+      "type": "string",
+      "default": "1"
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#06172b"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#134a82"
+    },
+    {
+      "id": "dawn",
+      "label": "New-day sunrise intro (1 = on)",
+      "type": "string",
+      "default": "0"
+    }
+  ]
+}

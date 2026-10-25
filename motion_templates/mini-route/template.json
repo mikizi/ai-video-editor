@@ -1,0 +1,92 @@
+{
+  "id": "mini-route",
+  "label": "Mini route map",
+  "description": "A small map card for putting on top of a drive: the route draws itself and a car dot travels along it for the whole scene. Meant to be shown as an overlay.",
+  "default_seconds": 9,
+  "fields": [
+    {
+      "id": "from_he",
+      "label": "From (Hebrew)",
+      "type": "string",
+      "default": "שדה התעופה קרקוב"
+    },
+    {
+      "id": "from_en",
+      "label": "From (English)",
+      "type": "string",
+      "default": "KRAKÓW AIRPORT"
+    },
+    {
+      "id": "from_ll",
+      "label": "From lon,lat",
+      "type": "string",
+      "default": "19.785,50.078"
+    },
+    {
+      "id": "to_he",
+      "label": "To (Hebrew)",
+      "type": "string",
+      "default": "בראמה בגורצה"
+    },
+    {
+      "id": "to_en",
+      "label": "To (English)",
+      "type": "string",
+      "default": "BRAMA W GORCE"
+    },
+    {
+      "id": "to_ll",
+      "label": "To lon,lat",
+      "type": "string",
+      "default": "20.075,49.466"
+    },
+    {
+      "id": "via_ll",
+      "label": "Route bend lon,lat (optional, comma list ; separated)",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "info",
+      "label": "Info chip",
+      "type": "string",
+      "default": "95 ק״מ · 92 דק׳"
+    },
+    {
+      "id": "zoom",
+      "label": "Map zoom",
+      "type": "string",
+      "default": "1.45"
+    },
+    {
+      "id": "total_km",
+      "label": "Total km (shows a 'km left' countdown)",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "walk",
+      "label": "Walking style 1/0",
+      "type": "string",
+      "default": "0"
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#06172b"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#134a82"
+    }
+  ]
+}

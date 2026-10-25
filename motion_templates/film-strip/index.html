@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"photo1","type":"string","label":"photo1","default":""},{"id":"cap1","type":"string","label":"cap1","default":""},{"id":"photo2","type":"string","label":"photo2","default":""},{"id":"cap2","type":"string","label":"cap2","default":""},{"id":"photo3","type":"string","label":"photo3","default":""},{"id":"cap3","type":"string","label":"cap3","default":""},{"id":"photo4","type":"string","label":"photo4","default":""},{"id":"cap4","type":"string","label":"cap4","default":""},{"id":"caption","type":"string","label":"caption","default":""},{"id":"accent","type":"color","label":"Accent","default":"#FFD400"},{"id":"bg_from","type":"color","label":"Bg1","default":"#14110f"},{"id":"bg_to","type":"color","label":"Bg2","default":"#3a2d22"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #14110f; --bg2: #3a2d22; }
+  #root { width: __W__px; height: __H__px; }
+  #fs-bg { background: radial-gradient(ellipse at 50% 45%, var(--bg2) 0%, var(--bg1) 80%); }
+  #fs-strip { position: absolute; left: 0; top: 50%; display: flex; align-items: center; background: #0b0a09; box-shadow: 0 calc(var(--u)*2) calc(var(--u)*6) rgba(0,0,0,.6); }
+  .fr { position: relative; flex: none; }
+  .fr .ph { position: absolute; overflow: hidden; background: #222; }
+  .fr .ph img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(.18) contrast(1.05); }
+  .fr .no { position: absolute; font-weight: 800; color: #e8b84a; letter-spacing: .1em; }
+  .fr .cp { position: absolute; left: 0; right: 0; text-align: center; color: rgba(255,255,255,.92); font-weight: 500; text-shadow: 0 2px 8px #000; }
+  .holes { position: absolute; left: 0; right: 0; display: flex; justify-content: space-around; }
+  .holes i { display: block; background: #e9e4da; border-radius: 22%; }
+  #fs-title { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5); text-align: center; font-weight: 300; font-size: calc(var(--u) * 6.2); letter-spacing: .12em; margin: 0; text-shadow: 0 calc(var(--u)*.6) calc(var(--u)*3) rgba(0,0,0,.7); }
+  #fs-title::after { content: ""; display: block; width: calc(var(--u) * 14); height: calc(var(--u) * .8); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 1.6) auto 0; }
+  #fs-flash { background: rgba(255,200,120,.0); }
+</style></head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="fs-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="fs-layer" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"><div id="fs-strip"></div></div>
+  <div id="fs-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><h2 id="fs-title"></h2></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const items = [1, 2, 3, 4].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const n = Math.max(items.length, 1);
+  const strip = document.getElementById("fs-strip");
+  const FH = H * 0.62, FW = FH * 1.18, hole = FH * 0.07, padY = FH * 0.14, gap = FW * 0.06;
+  const total = n * FW + (n + 1) * gap;
+  strip.style.height = FH + "px"; strip.style.width = total + "px";
+  const frames = items.map((it, i) => {
+    const f = document.createElement("div"); f.className = "fr"; f.style.width = FW + "px"; f.style.height = FH + "px"; f.style.marginLeft = gap + "px";
+    const ph = document.createElement("div"); ph.className = "ph"; ph.style.cssText = `left:${FW*0.06}px;right:${FW*0.06}px;top:${padY}px;bottom:${padY * 1.35}px`;
+    ph.innerHTML = `<img src="assets/${it.src}">`; f.appendChild(ph);
+    const no = document.createElement("div"); no.className = "no"; no.style.cssText = `left:${FW*0.07}px;bottom:${padY*0.34}px;font-size:${FH*0.07}px`; no.textContent = (i + 1) + "▸"; f.appendChild(no);
+    const cp = document.createElement("div"); cp.className = "cp"; cp.style.cssText = `bottom:${padY*0.30}px;font-size:${FH*0.075}px`; MK.text(cp, it.cap); f.appendChild(cp);
+    strip.appendChild(f); return f; });
+  // sprocket holes along the top and bottom of the whole strip
+  ["top", "bottom"].forEach((side) => { const h = document.createElement("div"); h.className = "holes"; h.style.cssText = `${side}:${padY * 0.22}px;height:${hole}px`;
+    const cnt = Math.round(total / (hole * 2.1)); for (let k = 0; k < cnt; k++) { const i = document.createElement("i"); i.style.cssText = `width:${hole*1.1}px;height:${hole}px`; h.appendChild(i); } strip.appendChild(h); });
+  MK.text(document.getElementById("fs-title"), v.caption || ""); if (!v.caption) document.getElementById("fs-title").style.display = "none";
+  strip.style.marginTop = (-FH / 2 - H * 0.04) + "px";
+  const startX = W + 40, endX = (W - (n * FW + (n - 1) * gap + gap)) / 2 - gap * 0, mid = (W - FW) / 2 - gap;
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#fs-bg", { scale: 1.15 }, { scale: 1, duration: D, ease: "none" }, 0)
+    .fromTo(strip, { x: startX, rotation: -1.6 }, { x: endX, rotation: 0, duration: Math.max(2, D - 2.4), ease: "power1.inOut" }, 0.2)
+    .fromTo(frames, { opacity: 0.35 }, { opacity: 1, duration: 0.6, stagger: 0.18 }, 0.4)
+    .fromTo("#fs-title", { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, D - 2.0)
+    .to([strip, "#fs-title"], { opacity: 0, duration: 0.45, ease: "power2.in" }, D - 0.5);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "id": "boarding-pass",
+  "label": "Boarding pass",
+  "description": "A boarding pass snaps in after a camera flash, a plane flies the route, then it lifts away. Great for 'the story begins' at the airport.",
+  "default_seconds": 4.6,
+  "fields": [
+    {"id": "from_code", "label": "From (code)", "type": "string", "default": "TLV"},
+    {"id": "from_city", "label": "From (city)", "type": "string", "default": "תל אביב"},
+    {"id": "to_code", "label": "To (code)", "type": "string", "default": "KRK"},
+    {"id": "to_city", "label": "To (city)", "type": "string", "default": "קרקוב"},
+    {"id": "date", "label": "Date", "type": "string", "default": "25.09.2026"},
+    {"id": "depart", "label": "Departs", "type": "string", "default": "05:40"},
+    {"id": "flight", "label": "Flight", "type": "string", "default": "LO2112"},
+    {"id": "pax", "label": "Passengers", "type": "string", "default": "11"},
+    {"id": "caption", "label": "Caption", "type": "string", "default": "הסיפור מתחיל"},
+    {"id": "accent", "label": "Accent color", "type": "color", "default": "#FFD400"},
+    {"id": "bg_from", "label": "Background 1", "type": "color", "default": "#0B1F3A"},
+    {"id": "bg_to", "label": "Background 2", "type": "color", "default": "#2A6FDB"}
+  ]
+}

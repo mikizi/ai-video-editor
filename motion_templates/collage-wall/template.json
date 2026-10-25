@@ -1,0 +1,140 @@
+{
+  "id": "collage-wall",
+  "label": "Collage wall",
+  "description": "Photos fly in from the edges of the screen one by one and land on a full-screen collage, overlapping like a scrapbook, then the camera drifts slowly across it. 3-6 photos, short captions.",
+  "default_seconds": 9,
+  "fields": [
+    {
+      "id": "photo1",
+      "label": "Photo 1",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap1",
+      "label": "Caption 1",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo2",
+      "label": "Photo 2 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap2",
+      "label": "Caption 2",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo3",
+      "label": "Photo 3 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap3",
+      "label": "Caption 3",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo4",
+      "label": "Photo 4 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap4",
+      "label": "Caption 4",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo5",
+      "label": "Photo 5 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap5",
+      "label": "Caption 5",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo6",
+      "label": "Photo 6 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap6",
+      "label": "Caption 6",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "caption",
+      "label": "Title",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#0c2238"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#2a6fb0"
+    },
+    {
+      "id": "mode",
+      "label": "fly (cards fly in from the edges) or drop (cards fall onto a table, one shot)",
+      "type": "string",
+      "default": "fly"
+    },
+    {
+      "id": "photo7",
+      "label": "Photo 7 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap7",
+      "label": "Caption 7",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo8",
+      "label": "Photo 8 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap8",
+      "label": "Caption 8",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "bg_video",
+      "label": "Backdrop video (blurred, optional)",
+      "type": "video",
+      "default": ""
+    }
+  ]
+}

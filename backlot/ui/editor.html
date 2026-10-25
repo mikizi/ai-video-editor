@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Montage Editor</title>
+<link rel="stylesheet" href="/ui/editor/editor.css">
+</head>
+<body>
+<header id="top">
+  <a class="back" href="/" title="All projects">← Library</a>
+  <select id="projSwitch" title="Switch project"></select>
+  <a class="back" id="back" href="/" title="Pipeline board for this project">Board</a>
+  <div class="title" id="title">Montage</div>
+  <div class="tools">
+    <button id="undo" title="Undo (⌘Z)">↶</button>
+    <button id="redo" title="Redo (⇧⌘Z)">↷</button>
+    <span class="save" id="save">—</span>
+  </div>
+  <div class="actions">
+    <span id="renderStatus" class="render-status"></span>
+    <button id="previewBtn" class="ghost">Preview render</button>
+    <button id="exportBtn" class="primary">Export MP4</button>
+  </div>
+</header>
+<div id="banner" class="banner hidden"></div>
+<main id="main">
+  <aside id="bin">
+    <div class="bin-tabs" id="binTabs"></div>
+    <div class="bin-grid" id="binGrid"></div>
+  </aside>
+  <section id="stage">
+    <div id="playerBox"><div id="player"></div></div>
+    <div class="transport">
+      <button id="prevClip" title="Previous clip">⏮</button>
+      <button id="play" class="play" title="Play / pause (space)">▶</button>
+      <button id="nextClip" title="Next clip">⏭</button>
+      <button id="fsBtn" title="Watch full screen (live, no render). Esc to exit">⛶</button>
+      <span class="time" id="time">0:00.0 / 0:00.0</span>
+    </div>
+  </section>
+  <aside id="inspector"></aside>
+  <aside id="comments" class="hidden"></aside>
+</main>
+<footer id="timeline">
+  <div class="tl-toolbar">
+    <button id="splitBtn" title="Split clip at playhead (S)">✂ Split</button>
+    <button id="delBtn" title="Delete (⌫)">🗑 Delete</button>
+    <button id="addText" title="Add text at playhead">T+ Text</button>
+    <button id="cmtBtn" title="Review notes pinned to the timeline (C = add a note at the playhead)">💬 Notes</button>
+    <button id="groupBtn" title="Group clips into one compound clip: click a clip, then shift-click the last clip of the range">▣ Group</button>
+    <span class="grow"></span>
+    <label class="zoom">Zoom <input id="zoom" type="range" min="20" max="320" value="90"></label>
+  </div>
+  <div class="tl-body">
+    <div class="tl-labels">
+      <div class="lab ruler-lab"></div>
+      <div class="lab grp-lab">Group</div>
+      <div class="lab">Video</div>
+      <div class="lab">Text</div>
+      <div class="lab">Music</div>
+      <div class="lab">Notes</div>
+    </div>
+    <div class="tl-scroll" id="tlScroll">
+      <div class="tl-inner" id="tlInner">
+        <div class="ruler" id="ruler"></div>
+        <div class="track group" id="trackGroup"></div>
+        <div class="track video" id="trackVideo"></div>
+        <div class="track text" id="trackText"></div>
+        <div class="track music" id="trackMusic"></div>
+        <div class="track notes" id="trackNotes"></div>
+        <div class="playhead" id="playhead"><div class="ph-knob"></div></div>
+      </div>
+    </div>
+  </div>
+</footer>
+<div id="empty" class="empty hidden">
+  <div class="empty-card">
+    <h2>No timeline yet</h2>
+    <p id="emptyCount">Add photos and videos, then make a first draft.</p>
+    <div class="row"><button id="emptyImport">＋ Import media</button></div>
+    <div class="row">
+      <select id="emptyAspect"><option>9:16</option><option>16:9</option><option>1:1</option><option>4:5</option></select>
+      <button id="emptyDraft" class="primary">Create first draft</button>
+    </div>
+    <p class="err" id="emptyErr"></p>
+  </div>
+</div>
+<div id="importer" class="importer hidden"></div>
+<div id="toast" class="toast"></div>
+<script src="/ui/editor/montage-player.js"></script>
+<script type="module" src="/ui/editor/editor.js"></script>
+</body>
+</html>

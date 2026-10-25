@@ -1,0 +1,38 @@
+{
+  "id": "pin-map",
+  "label": "Pin map (beat pins)",
+  "description": "A small map card for putting on top of a quick montage: a pin drops at each place on the beat and a route line links them. The first stop can be far away (Israel); the camera then zooms into Poland. Meant as an overlay.",
+  "default_seconds": 5,
+  "fields": [
+    {
+      "id": "stops",
+      "label": "Stops: english|lon|lat|side(L/R/T/B);...",
+      "type": "string",
+      "default": "TEL AVIV|34.87|32.01|B;BRAMA|20.075|49.466|R;TATRY|20.085|49.233|R;ENERGYLANDIA|19.41|50.0|L;KRAKÓW|19.945|50.065|R"
+    },
+    {
+      "id": "times",
+      "label": "Pin times in seconds (comma separated)",
+      "type": "string",
+      "default": "0.1,1.1,2.0,3.0,3.95"
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#06172b"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#134a82"
+    }
+  ]
+}

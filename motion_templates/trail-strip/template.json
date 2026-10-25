@@ -1,0 +1,180 @@
+{
+  "id": "trail-strip",
+  "label": "Trail strip (overlay)",
+  "description": "A tall full-height map strip meant as an overlay on the left of a walking video: the walker moves along the trail, 'km left' counts down, and each photo pops up big from the video side, then shrinks into the spot on the map where it was taken. 2-8 photos. Use mode 'back' for the way home.",
+  "default_seconds": 18,
+  "fields": [
+    {
+      "id": "photo1",
+      "label": "Photo 1",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap1",
+      "label": "Caption 1",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo2",
+      "label": "Photo 2",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap2",
+      "label": "Caption 2",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo3",
+      "label": "Photo 3",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap3",
+      "label": "Caption 3",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo4",
+      "label": "Photo 4",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap4",
+      "label": "Caption 4",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo5",
+      "label": "Photo 5",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap5",
+      "label": "Caption 5",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo6",
+      "label": "Photo 6",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap6",
+      "label": "Caption 6",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo7",
+      "label": "Photo 7",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap7",
+      "label": "Caption 7",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo8",
+      "label": "Photo 8",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap8",
+      "label": "Caption 8",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "caption",
+      "label": "Title",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "from_he",
+      "label": "Start (Hebrew)",
+      "type": "string",
+      "default": "תחילת השביל"
+    },
+    {
+      "id": "from_en",
+      "label": "Start (English)",
+      "type": "string",
+      "default": "WIERCH PORONIEC"
+    },
+    {
+      "id": "from_ll",
+      "label": "Start lon,lat",
+      "type": "string",
+      "default": "20.078,49.2634"
+    },
+    {
+      "id": "to_he",
+      "label": "End (Hebrew)",
+      "type": "string",
+      "default": "רוסינובה פולנה"
+    },
+    {
+      "id": "to_en",
+      "label": "End (English)",
+      "type": "string",
+      "default": "RUSINOWA POLANA"
+    },
+    {
+      "id": "to_ll",
+      "label": "End lon,lat",
+      "type": "string",
+      "default": "20.085,49.233"
+    },
+    {
+      "id": "mode",
+      "label": "Direction: up (start->end) or back (end->start)",
+      "type": "string",
+      "default": "up"
+    },
+    {
+      "id": "total_km",
+      "label": "Trail length km",
+      "type": "string",
+      "default": "3.5"
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#06172b"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#134a82"
+    }
+  ],
+  "format": {
+    "width": 1080,
+    "height": 1822
+  }
+}

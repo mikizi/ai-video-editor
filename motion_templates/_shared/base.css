@@ -1,0 +1,6 @@
+html, body { margin: 0; padding: 0; background: #000; }
+body { font-family: "Heebo", Arial, sans-serif; color: #fff; }
+#root { position: relative; overflow: hidden; }
+.layer { position: absolute; inset: 0; }
+.wm { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0 0.04em; }
+.w { display: inline-block; }

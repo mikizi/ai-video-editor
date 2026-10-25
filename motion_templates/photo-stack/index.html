@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"photo1","type":"string","label":"photo1","default":""},{"id":"cap1","type":"string","label":"cap1","default":""},{"id":"photo2","type":"string","label":"photo2","default":""},{"id":"cap2","type":"string","label":"cap2","default":""},{"id":"photo3","type":"string","label":"photo3","default":""},{"id":"cap3","type":"string","label":"cap3","default":""},{"id":"photo4","type":"string","label":"photo4","default":""},{"id":"cap4","type":"string","label":"cap4","default":""},{"id":"caption","type":"string","label":"caption","default":""},{"id":"accent","type":"color","label":"Accent","default":"#FFD400"},{"id":"bg_from","type":"color","label":"Bg1","default":"#101a2e"},{"id":"bg_to","type":"color","label":"Bg2","default":"#2d4a7a"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #101a2e; --bg2: #2d4a7a; }
+  #root { width: __W__px; height: __H__px; }
+  #ps-bg { background: radial-gradient(ellipse at 50% 40%, var(--bg2) 0%, var(--bg1) 80%); }
+  #ps-deck { position: absolute; inset: 0; }
+  .cd { position: absolute; background: #fffdf7; box-sizing: border-box; box-shadow: 0 calc(var(--u)*2) calc(var(--u)*6) rgba(0,0,0,.5); will-change: transform; }
+  .cd .ph { position: relative; overflow: hidden; background: #222; }
+  .cd .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cd .cap { position: absolute; left: 0; right: 0; text-align: center; color: #3a3550; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ps-count { position: absolute; right: calc(var(--u) * 7); top: calc(var(--u) * 6); font-weight: 800; font-size: calc(var(--u) * 6); letter-spacing: .08em; text-shadow: 0 calc(var(--u)*.6) calc(var(--u)*3) rgba(0,0,0,.6); }
+  #ps-count small { font-size: .55em; opacity: .7; font-weight: 500; }
+  #ps-title { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5); text-align: center; font-weight: 300; font-size: calc(var(--u) * 6.2); letter-spacing: .12em; margin: 0; text-shadow: 0 calc(var(--u)*.6) calc(var(--u)*3) rgba(0,0,0,.7); }
+  #ps-title::after { content: ""; display: block; width: calc(var(--u) * 14); height: calc(var(--u) * .8); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 1.6) auto 0; }
+</style></head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="ps-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="ps-deck" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="ps-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><div id="ps-count"></div><h2 id="ps-title"></h2></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const items = [1, 2, 3, 4].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const n = Math.max(items.length, 1);
+  const deck = document.getElementById("ps-deck");
+  const CH = H * 0.7, CW = Math.min(W * 0.46, CH * 0.95), pad = CW * 0.045, padB = CW * 0.17;
+  const tilt = [0, -3.5, 3, -2];
+  const cards = items.map((it, i) => {
+    const c = document.createElement("div"); c.className = "cd"; c.style.cssText = `width:${CW}px;height:${CH}px;left:${(W - CW) / 2}px;top:${(H - CH) / 2 - H * 0.03}px;padding:${pad}px ${pad}px 0;z-index:${n - i}`;
+    c.innerHTML = `<div class="ph" style="height:${CH - pad - padB}px"><img src="assets/${it.src}"></div><div class="cap" style="bottom:${padB * 0.26}px;font-size:${CW * 0.055}px"></div>`;
+    MK.text(c.querySelector(".cap"), it.cap); deck.appendChild(c); return c; });
+  MK.text(document.getElementById("ps-title"), v.caption || ""); if (!v.caption) document.getElementById("ps-title").style.display = "none";
+  const count = document.getElementById("ps-count");
+  const step = Math.max(1.3, (D - 1.0 - 1.8) / n);
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#ps-bg", { scale: 1.15 }, { scale: 1, duration: D, ease: "none" }, 0);
+  cards.forEach((c, i) => {
+    const t0 = 0.3 + i * step, behind = i;     // cards below the top one sit slightly rotated, like a real pile
+    gsap.set(c, { rotation: tilt[i] ?? 0, y: 0, scale: 1 - Math.min(i, 2) * 0.035, opacity: 1 });
+    tl.fromTo(c, { y: 140, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1 - Math.min(i, 2) * 0.035, duration: 0.55, ease: "back.out(1.4)" }, i === 0 ? 0.15 : 0.15 + i * 0.12);
+    if (i < n - 1) tl.to(c, { x: (i % 2 ? -1 : 1) * W * 0.8, y: -H * 0.08, rotation: (i % 2 ? -1 : 1) * 22, opacity: 0, duration: 0.7, ease: "power2.in" }, t0 + step - 0.7)
+                     .to(cards.slice(i + 1), { scale: "+=0.035", rotation: (_, tg) => 0, duration: 0.5, ease: "power2.out" }, t0 + step - 0.6);
+  });
+  items.forEach((_, i) => tl.call(() => { count.innerHTML = `${i + 1}<small> / ${n}</small>`; }, [], 0.3 + i * step));
+  tl.fromTo("#ps-title", { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, D - 2.0)
+    .to(["#ps-deck", "#ps-title", "#ps-count"], { opacity: 0, duration: 0.45, ease: "power2.in" }, D - 0.5);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "id": "route-map",
+  "label": "Route map",
+  "description": "An animated map: a plane flies the route between two places, with pins, names and a travel-time chip. Built from real Natural Earth geography (Israel to Poland by default).",
+  "default_seconds": 4.2,
+  "fields": [
+    {"id": "title", "label": "Title", "type": "string", "default": "בדרך לפולין"},
+    {"id": "from_code", "label": "From (code)", "type": "string", "default": "TLV"},
+    {"id": "from_city", "label": "From (city)", "type": "string", "default": "תל אביב"},
+    {"id": "to_code", "label": "To (code)", "type": "string", "default": "KRK"},
+    {"id": "to_city", "label": "To (city)", "type": "string", "default": "קרקוב"},
+    {"id": "info", "label": "Info chip", "type": "string", "default": "2,350 ק״מ · 3 שעות 50 דק׳"},
+    {"id": "accent", "label": "Accent color", "type": "color", "default": "#FFD400"},
+    {"id": "bg_from", "label": "Background 1", "type": "color", "default": "#07182e"},
+    {"id": "bg_to", "label": "Background 2", "type": "color", "default": "#14508f"}
+  ]
+}

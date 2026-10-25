@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"photo1","type":"string","label":"photo1","default":""},{"id":"cap1","type":"string","label":"cap1","default":""},{"id":"photo2","type":"string","label":"photo2","default":""},{"id":"cap2","type":"string","label":"cap2","default":""},{"id":"photo3","type":"string","label":"photo3","default":""},{"id":"cap3","type":"string","label":"cap3","default":""},{"id":"photo4","type":"string","label":"photo4","default":""},{"id":"cap4","type":"string","label":"cap4","default":""},{"id":"photo5","type":"string","label":"photo5","default":""},{"id":"cap5","type":"string","label":"cap5","default":""},{"id":"photo6","type":"string","label":"photo6","default":""},{"id":"cap6","type":"string","label":"cap6","default":""},{"id":"photo7","type":"string","label":"photo7","default":""},{"id":"cap7","type":"string","label":"cap7","default":""},{"id":"photo8","type":"string","label":"photo8","default":""},{"id":"cap8","type":"string","label":"cap8","default":""},{"id":"caption","type":"string","label":"caption","default":""},{"id":"from_he","type":"string","label":"from_he","default":""},{"id":"from_en","type":"string","label":"from_en","default":""},{"id":"from_ll","type":"string","label":"from_ll","default":""},{"id":"to_he","type":"string","label":"to_he","default":""},{"id":"to_en","type":"string","label":"to_en","default":""},{"id":"to_ll","type":"string","label":"to_ll","default":""},{"id":"mode","type":"string","label":"mode","default":""},{"id":"total_km","type":"string","label":"total_km","default":""},{"id":"accent","type":"color","label":"Accent","default":"#FFD400"},{"id":"bg_from","type":"color","label":"Bg1","default":"#06172b"},{"id":"bg_to","type":"color","label":"Bg2","default":"#134a82"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #06172b; --bg2: #134a82; }
+  #root { width: __W__px; height: __H__px; }
+  #tp-bg { background: radial-gradient(ellipse at 50% 50%, var(--bg2) 0%, var(--bg1) 82%); }
+  #tp-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #tp-scrim { display: none; }
+  #tp-photos { position: absolute; inset: 0; }
+  .pc { position: absolute; background: #fffdf7; box-sizing: border-box; box-shadow: 0 calc(var(--u)*1.6) calc(var(--u)*5) rgba(0,0,0,.55); will-change: transform; transform-origin: 50% 50%; }
+  .pc .ph { position: relative; overflow: hidden; background: #222; }
+  .pc .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pc .cap { position: absolute; left: 0; right: 0; text-align: center; color: #3a3550; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #tp-title { position: absolute; left: calc(var(--u) * 6); top: calc(var(--u) * 5); font-weight: 300; font-size: calc(var(--u) * 7); letter-spacing: .08em; margin: 0; text-shadow: 0 calc(var(--u)*.7) calc(var(--u)*3.5) rgba(0,0,0,.7); }
+  #tp-title::after { content: ""; display: block; width: calc(var(--u) * 15); height: calc(var(--u) * .9); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 1.8) 0 0; }
+  #tp-chip { position: absolute; left: calc(var(--u) * 6); bottom: calc(var(--u) * 6); padding: calc(var(--u) * 1.5) calc(var(--u) * 3.4); border-radius: 99px; background: rgba(0,0,0,.55); border: 2px solid rgba(255,255,255,.4); font-weight: 800; font-size: calc(var(--u) * 4.6); white-space: nowrap; }
+  .lb-he { font-weight: 800; font-size: 52px; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.75); stroke-width: 7px; stroke-linejoin: round; }
+  .lb-en { font-weight: 500; font-size: 30px; letter-spacing: .12em; fill: rgba(255,255,255,.9); paint-order: stroke; stroke: rgba(0,0,0,.75); stroke-width: 6px; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="tp-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="tp-map" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1">
+    <svg id="tp-svg" viewBox="0 0 __W__ __H__" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g id="tp-z"><path id="tp-land" fill="rgba(255,255,255,.05)"/><path id="tp-poland" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/><path id="tp-borders" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" vector-effect="non-scaling-stroke"/></g>
+      <g id="tp-g"></g>
+    </svg>
+  </div>
+  <div id="tp-scrim" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"></div>
+  <div id="tp-photos" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="3"></div>
+  <div id="tp-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="4"><h1 id="tp-title"></h1><div id="tp-chip"></div></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const GEO = /*GEO*/null/*END*/;
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const $ = (id) => document.getElementById(id), NS = "http://www.w3.org/2000/svg";
+  const items = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const n = Math.max(items.length, 1), BACK = String(v.mode || "up").toLowerCase() === "back";
+  $("tp-land").setAttribute("d", GEO.land); $("tp-poland").setAttribute("d", GEO.poland); $("tp-borders").setAttribute("d", GEO.borders);
+  const P = GEO.proj, rad = Math.PI / 180, merc = (f) => Math.log(Math.tan(Math.PI / 4 + f * rad / 2));
+  const project = (ll) => { const [lon, lat] = ll.split(",").map(Number); return [P.tx + P.k * (lon - P.lon0) * rad, P.ty - P.k * (merc(lat) - merc(P.lat0))]; };
+  let A = project(v.from_ll), B = project(v.to_ll), nameA = [v.from_he, v.from_en], nameB = [v.to_he, v.to_en];
+  if (BACK) { [A, B] = [B, A]; [nameA, nameB] = [nameB, nameA]; }
+  const cx = (A[0] + B[0]) / 2, cy = (A[1] + B[1]) / 2, bh = Math.abs(A[1] - B[1]), bw = Math.abs(A[0] - B[0]);
+  const Z = Math.min(120, 1000 / Math.max(bh, 1), 640 / Math.max(bw, 1)), FX = W * 0.46, FY = H * 0.6;
+  $("tp-z").setAttribute("transform", `translate(${FX} ${FY}) scale(${Z}) translate(${-cx} ${-cy})`);
+  const tA = [FX + Z * (A[0] - cx), FY + Z * (A[1] - cy)], tB = [FX + Z * (B[0] - cx), FY + Z * (B[1] - cy)];
+  const mk = (tag, a, par) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); ($(par) || par || $("tp-g")).appendChild(e); return e; };
+  const dx = tB[0] - tA[0], dy = tB[1] - tA[1], len = Math.hypot(dx, dy) || 1, bend = len * 0.12;
+  const d = `M${tA[0]} ${tA[1]} Q${(tA[0] + tB[0]) / 2 + (-dy / len) * bend} ${(tA[1] + tB[1]) / 2 + (dx / len) * bend} ${tB[0]} ${tB[1]}`;
+  mk("path", { d, fill: "none", stroke: "rgba(255,255,255,.35)", "stroke-width": 9, "stroke-dasharray": "3 20", "stroke-linecap": "round" });
+  const route = mk("path", { d, fill: "none", stroke: "#6fe3ff", "stroke-width": 12, "stroke-linecap": "round" });
+  const L = route.getTotalLength(); route.style.strokeDasharray = L; route.style.strokeDashoffset = L;
+  const endpoint = (p, he, en, side) => { const g = mk("g", { transform: `translate(${p[0]} ${p[1]})` }); mk("circle", { r: 20, fill: "#FFD400", stroke: "#0b1f3a", "stroke-width": 7 }, g);
+    const h = mk("text", { x: side * 36, y: -6, "text-anchor": side < 0 ? "end" : "start", class: "lb-he" }, g); h.textContent = he; const e = mk("text", { x: side * 36, y: 28, "text-anchor": side < 0 ? "end" : "start", class: "lb-en" }, g); e.textContent = en; return g; };
+  const gA = endpoint(tA, nameA[0], nameA[1], 1), gB = endpoint(tB, nameB[0], nameB[1], 1);
+  const walker = mk("g", {}); mk("circle", { r: 30, fill: "rgba(111,227,255,.35)" }, walker); mk("circle", { r: 17, fill: "#fff", stroke: "#0b1f3a", "stroke-width": 6 }, walker);
+  MK.text($("tp-title"), v.caption || ""); const TOT = parseFloat(v.total_km) || 0;
+  const place = (p) => { const pt = route.getPointAtLength(L * p); walker.setAttribute("transform", `translate(${pt.x} ${pt.y})`); route.style.strokeDashoffset = L * (1 - p);
+    if (TOT) { const left = Math.max(0, TOT * (1 - p)); $("tp-chip").textContent = left < 0.05 ? (BACK ? "חזרנו! 🎉" : "הגענו! 🎉") : `נשארו ${left.toFixed(1)} ק״מ`; $("tp-chip").dir = "rtl"; } };
+  place(0);
+  // photo cards: big at the left, then they fly onto the map as small pins beside the trail
+  const CW = W * 0.74, CH = CW * 1.0, pad = CW * 0.05, padB = CW * 0.16, S = Math.min(1, 250 / CW), CX = W * 0.5, CY = H * 0.3;
+  const slot = Math.max(1.8, (D - 1.0 - 2.0) / n);
+  const prog = { p: 0 };
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#tp-z", { opacity: 0 }, { opacity: 1, duration: 0.12 }, 0)
+    .fromTo([gA, gB], { opacity: 0, scale: 0.4, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)", stagger: 0.2 }, 0.2)
+    .fromTo("#tp-title", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 0.2)
+    .fromTo("#tp-chip", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.5);
+  const holder = $("tp-photos"), pins = [];
+  const leader = (x1, y1, x2, y2) => mk("line", { x1, y1, x2, y2, stroke: "rgba(255,255,255,.7)", "stroke-width": 3, "stroke-dasharray": "6 8" });
+  items.forEach((it, i) => {
+    const p = (i + 1) / (n + 1), pt = route.getPointAtLength(L * p);
+    const side = i % 2 ? -1 : 1, px = pt.x + side * (190 + (i % 4) * 20), py = pt.y + ((i % 3) - 1) * 8;
+    const c = document.createElement("div"); c.className = "pc";
+    c.style.cssText = `width:${CW}px;height:${CH}px;padding:${pad}px ${pad}px 0;left:${CX - CW / 2}px;top:${CY - CH / 2}px`;
+    c.innerHTML = `<div class="ph" style="height:${CH - pad - padB}px"><img src="assets/${it.src}"></div><div class="cap" style="bottom:${padB * 0.24}px;font-size:${CW * 0.06}px"></div>`;
+    MK.text(c.querySelector(".cap"), it.cap); holder.appendChild(c); gsap.set(c, { opacity: 0 });
+    const t0 = 0.9 + i * slot, hold = Math.max(0.5, slot - 0.45 - 0.7 - 0.6);   // pop 0.45 + hold + fly 0.7 + a 0.6 s pause with the photo in its place before the next one
+    const ld = leader(pt.x, pt.y, pt.x, pt.y); gsap.set(ld, { opacity: 0 });
+    const tx = px - CX, ty = py - CY, rot = (i % 2 ? -1 : 1) * 4;
+    tl.fromTo(c, { opacity: 0, scale: 0.8, y: 70, rotation: -3 }, { opacity: 1, scale: 0.97, y: 0, rotation: 0, duration: 0.45, ease: "back.out(1.4)" }, t0)
+      .to(c, { scale: 1, duration: hold, ease: "none" }, t0 + 0.45)
+      .to(c, { x: tx, y: ty, scale: S, rotation: rot, duration: 0.7, ease: "power3.inOut" }, t0 + 0.45 + hold)
+      .fromTo(prog, { p: i / (n + 1) }, { p, duration: 0.9, ease: "power1.inOut", immediateRender: false, onUpdate: () => place(prog.p) }, t0 + 0.45 + hold)
+      .to(ld, { opacity: 1, attr: { x2: px, y2: py }, duration: 0.4 }, t0 + 0.45 + hold + 0.45);
+  });
+  tl.fromTo(prog, { p: n / (n + 1) }, { p: 1, duration: 1.0, ease: "power1.inOut", immediateRender: false, onUpdate: () => place(prog.p) }, 0.9 + n * slot - 0.1)
+    .to(["#tp-tl", "#tp-photos", "#tp-map", "#tp-scrim"], { opacity: 0, duration: 0.45, ease: "power2.in" }, D - 0.5);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

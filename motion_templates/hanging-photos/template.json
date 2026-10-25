@@ -1,0 +1,128 @@
+{
+  "id": "hanging-photos",
+  "label": "Hanging photos",
+  "description": "Romantic: photos are pegged one after another on a string of fairy lights and keep swinging gently, the earlier ones staying up, so the line fills with memories. 2-6 photos, a short caption each.",
+  "default_seconds": 10,
+  "fields": [
+    {
+      "id": "photo1",
+      "label": "Photo 1",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap1",
+      "label": "Caption 1",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo2",
+      "label": "Photo 2 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap2",
+      "label": "Caption 2",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo3",
+      "label": "Photo 3 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap3",
+      "label": "Caption 3",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo4",
+      "label": "Photo 4 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap4",
+      "label": "Caption 4",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo5",
+      "label": "Photo 5 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap5",
+      "label": "Caption 5",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo6",
+      "label": "Photo 6 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap6",
+      "label": "Caption 6",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "caption",
+      "label": "Title",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "glow",
+      "label": "Glow color",
+      "type": "color",
+      "default": "#FFC9A8"
+    },
+    {
+      "id": "tint",
+      "label": "Backdrop tint",
+      "type": "color",
+      "default": "#3a1d2e"
+    },
+    {
+      "id": "bg_photo",
+      "label": "Backdrop photo (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "bg_photo2",
+      "label": "Second backdrop photo (cross-fades in with the second string)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "caption2",
+      "label": "Second title (second string)",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "video1",
+      "label": "Moving first photo: video (9:16, optional)",
+      "type": "video",
+      "default": ""
+    },
+    {
+      "id": "vcap",
+      "label": "Caption of the moving photo",
+      "type": "string",
+      "default": ""
+    }
+  ]
+}

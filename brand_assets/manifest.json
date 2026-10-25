@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "opener": {
+    "id": "brand-opener",
+    "filename": "brand-opener.mp4",
+    "display_name": "Your Brand opener",
+    "duration_seconds": 4.0,
+    "resolution": "1920x1080",
+    "fps": 30,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "audio_channels": 2,
+    "includes_audio": true,
+    "approved": true,
+    "approved_source": "<your-project>/brand-opener.mp4",
+    "sha256": "0e930cdbe05fce511239d35099c0431def0d1591b7903a7bea928be653f59b7f"
+  }
+}

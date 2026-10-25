@@ -1,0 +1,80 @@
+{
+  "id": "photo-stack",
+  "label": "Photo stack",
+  "description": "A neat stack of photos: the top one is flicked away to reveal the next, with a counter and a caption. 2-4 photos, a clear one-at-a-time story.",
+  "default_seconds": 8,
+  "fields": [
+    {
+      "id": "photo1",
+      "label": "Photo 1",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap1",
+      "label": "Caption 1",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo2",
+      "label": "Photo 2",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap2",
+      "label": "Caption 2",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo3",
+      "label": "Photo 3 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap3",
+      "label": "Caption 3",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "photo4",
+      "label": "Photo 4 (optional)",
+      "type": "photo",
+      "default": ""
+    },
+    {
+      "id": "cap4",
+      "label": "Caption 4",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "caption",
+      "label": "Title (bottom)",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "id": "accent",
+      "label": "Accent color",
+      "type": "color",
+      "default": "#FFD400"
+    },
+    {
+      "id": "bg_from",
+      "label": "Background 1",
+      "type": "color",
+      "default": "#101a2e"
+    },
+    {
+      "id": "bg_to",
+      "label": "Background 2",
+      "type": "color",
+      "default": "#2d4a7a"
+    }
+  ]
+}

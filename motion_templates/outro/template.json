@@ -1,0 +1,13 @@
+{
+  "id": "outro",
+  "label": "Outro",
+  "description": "A closing card with a bouncy title and floating dots. Fades out softly.",
+  "default_seconds": 4,
+  "fields": [
+    {"id": "title", "label": "Title", "type": "string", "default": "The End"},
+    {"id": "subtitle", "label": "Subtitle", "type": "string", "default": "Until the next trip"},
+    {"id": "accent", "label": "Accent color", "type": "color", "default": "#FFD400"},
+    {"id": "bg_from", "label": "Background 1", "type": "color", "default": "#0B0B12"},
+    {"id": "bg_to", "label": "Background 2", "type": "color", "default": "#26204A"}
+  ]
+}

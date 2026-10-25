@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"photo1","type":"string","label":"photo1","default":""},{"id":"cap1","type":"string","label":"cap1","default":""},{"id":"photo2","type":"string","label":"photo2","default":""},{"id":"cap2","type":"string","label":"cap2","default":""},{"id":"photo3","type":"string","label":"photo3","default":""},{"id":"cap3","type":"string","label":"cap3","default":""},{"id":"photo4","type":"string","label":"photo4","default":""},{"id":"cap4","type":"string","label":"cap4","default":""},{"id":"photo5","type":"string","label":"photo5","default":""},{"id":"cap5","type":"string","label":"cap5","default":""},{"id":"photo6","type":"string","label":"photo6","default":""},{"id":"cap6","type":"string","label":"cap6","default":""},{"id":"caption","type":"string","label":"caption","default":""},{"id":"bg_photo","type":"string","label":"bg_photo","default":""},{"id":"bg_photo2","type":"string","label":"bg_photo2","default":""},{"id":"caption2","type":"string","label":"caption2","default":""},{"id":"video1","type":"string","label":"video1","default":""},{"id":"vcap","type":"string","label":"vcap","default":""},{"id":"glow","type":"color","label":"glow","default":"#FFC9A8"},{"id":"tint","type":"color","label":"tint","default":"#3a1d2e"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@200;300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --glow: #FFC9A8; --tint: #3a1d2e; }
+  #root { width: __W__px; height: __H__px; overflow: hidden; background: var(--tint); }
+  #hp-bg { background: radial-gradient(ellipse at 50% 38%, rgba(255,190,150,.34), rgba(60,20,50,.2) 55%, rgba(20,6,22,.9) 100%), linear-gradient(180deg, #5a2a47 0%, #2a1230 100%); }
+  #hp-bgp { background-size: cover; background-position: center; filter: blur(calc(var(--u) * .7)) brightness(.86) saturate(1.2); transform-origin: 50% 60%; }
+  #hp-bgp2 { background-size: cover; background-position: center; filter: blur(calc(var(--u) * .7)) brightness(.86) saturate(1.2); opacity: 0; }
+  #hp-bgshade { background: linear-gradient(180deg, rgba(34,12,38,.38) 0%, rgba(34,12,38,0) 34%, rgba(34,12,38,.02) 62%, rgba(24,8,28,.5) 100%); }
+  .hp-l { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,226,196,.6), rgba(255,226,196,0) 68%); mix-blend-mode: screen; }
+  #hp-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #hp-pics { position: absolute; inset: 0; }
+  .hp { position: absolute; left: 0; top: 0; transform-origin: 50% 0; background: #fff8f0; padding: calc(var(--u) * 1.3); box-sizing: border-box; border-radius: calc(var(--u) * .5); box-shadow: 0 calc(var(--u) * 1.6) calc(var(--u) * 5) rgba(0,0,0,.5), 0 0 calc(var(--u) * 7) rgba(255,200,168,.28); }
+  .hp .ph { width: 100%; overflow: hidden; border-radius: calc(var(--u) * .25); position: relative; }
+  .hp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hp .peg { position: absolute; left: 50%; top: calc(var(--u) * -3.4); width: calc(var(--u) * 1.5); height: calc(var(--u) * 4.4); margin-left: calc(var(--u) * -.75); border-radius: calc(var(--u) * .4); background: linear-gradient(90deg, #d9a15b, #b9793a); box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  .hp .cap { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * .35); text-align: center; color: #5a3a48; font-weight: 500; font-size: calc(var(--u) * 2.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; unicode-bidi: plaintext; }
+  #hp-vig { background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(25,6,22,.55) 100%); }
+  #hp-title { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 4.5); text-align: center; font-weight: 200; font-size: calc(var(--u) * 5.2); letter-spacing: .18em; color: #fff3e6; text-shadow: 0 0 calc(var(--u) * 3) rgba(255,190,150,.8); margin: 0; opacity: 0; unicode-bidi: plaintext; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <div id="hp-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="hp-bgp" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="hp-bgp2" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="hp-bgshade" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="hp-lights" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="hp-str" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"><svg id="hp-svg" viewBox="0 0 __W__ __H__" xmlns="http://www.w3.org/2000/svg"><path id="hp-line" fill="none" stroke="rgba(255,240,220,.7)" stroke-width="3"/><path id="hp-line2" fill="none" stroke="rgba(255,240,220,.7)" stroke-width="3"/><g id="hp-bulbs"></g></svg></div>
+  <div id="hp-pics" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="3"></div>
+  <video id="hp-vid" class="clip" src="assets/video1.mp4" muted playsinline data-start="0" data-duration="__DUR__" data-track-index="4" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover"></video>
+  <div id="hp-vig" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="4"></div>
+  <div id="hp-tx" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="5"><h2 id="hp-title"></h2></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100, land = W >= H;
+  MK.colors({ "--glow": v.glow, "--tint": v.tint });
+  const NS = "http://www.w3.org/2000/svg", $ = (id) => document.getElementById(id);
+  const photos = [1, 2, 3, 4, 5, 6].map((i) => ({ src: v["photo" + i], cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const items = (v.video1 ? [{ video: true, cap: v.vcap || "" }] : []).concat(photos);
+  const n = Math.max(items.length, 1);
+  // one string for up to 4 photos; more than that and a second string hangs lower, so the same slide keeps filling up
+  const ROWS = n > 4 ? 2 : 1, r1 = ROWS === 2 ? Math.ceil(n / 2) : n, r2 = n - r1;
+  const rowOf = (i) => (i < r1 ? 0 : 1), colOf = (i) => (i < r1 ? i : i - r1), cnt = (row) => (row === 0 ? r1 : r2);
+  const y0 = land ? H * 0.07 : H * 0.06, sag = land ? H * 0.04 : H * 0.03, ROWGAP = H * 0.4;
+  const sy = (x, row = 0) => y0 + row * ROWGAP + sag * (1 - Math.pow(2 * x / W - 1, 2));
+  const lineD = (row) => { let d = ""; for (let i = 0; i <= 40; i++) { const x = -W * 0.03 + (W * 1.06) * i / 40; d += (i ? "L" : "M") + x + " " + sy(Math.min(W, Math.max(0, x)), row); } return d; };
+  $("hp-line").setAttribute("d", lineD(0)); if (ROWS === 2) $("hp-line2").setAttribute("d", lineD(1)); else $("hp-line2").style.display = "none";
+  const bulbs = [], bulbRow = [];
+  for (let row = 0; row < ROWS; row++) for (let i = 0; i < 22; i++) { const x = W * (i + 0.5) / 22, c = document.createElementNS(NS, "circle"); c.setAttribute("cx", x); c.setAttribute("cy", sy(x, row) + 12); c.setAttribute("r", u * .55); c.setAttribute("fill", "#ffe3b8"); $("hp-bulbs").appendChild(c); const g = document.createElement("div"); g.className = "hp-l"; const sz = u * 5; g.style.cssText = `width:${sz}px;height:${sz}px;left:${x - sz / 2}px;top:${sy(x, row) + 12 - sz / 2}px`; $("hp-lights").appendChild(g); bulbs.push([c, g]); bulbRow.push(row); }
+  const tl = gsap.timeline({ paused: true });
+  // optional photo backdrop(s): the picture itself (softened and darkened so the hanging photos stay the focus), drifting slowly;
+  // with a second backdrop it cross-fades in when the second string starts
+  const t0 = 0.7, step = Math.min(1.5, (D - t0 - 1.6) / n);
+  if (v.bg_photo) {
+    $("hp-bgp").style.backgroundImage = `url(assets/${v.bg_photo})`; $("hp-bg").style.opacity = 0;
+    gsap.set("#hp-bgp", { opacity: 0 });
+    tl.fromTo("#hp-bgp", { scale: 1.12 }, { scale: 1.02, duration: D, ease: "none" }, 0);
+    tl.to("#hp-bgp", { opacity: 1, duration: 0.6 }, 0);
+    if (v.bg_photo2 && r2 > 0) { $("hp-bgp2").style.backgroundImage = `url(assets/${v.bg_photo2})`; tl.fromTo("#hp-bgp2", { scale: 1.12 }, { scale: 1.02, duration: D, ease: "none" }, 0).to("#hp-bgp2", { opacity: 1, duration: 1.4, ease: "sine.inOut" }, t0 + r1 * step - 0.3); }
+  } else { $("hp-bgp").style.display = "none"; $("hp-bgshade").style.display = "none"; }
+  bulbs.forEach(([c, g], i) => { const row = bulbRow[i], at = row === 0 ? 0 : t0 + r1 * step - 0.4; tl.fromTo([c, g], { opacity: 0 }, { opacity: 1, duration: 0.5 }, at + (i % 22) * 0.04); tl.to(g, { opacity: 0.45, duration: 0.9 + (i % 4) * 0.2, repeat: Math.ceil(D / 1.2), yoyo: true, ease: "sine.inOut" }, at + 1 + (i % 5) * 0.15); });
+  if (ROWS === 2) gsap.set("#hp-line2", { opacity: 0 }), tl.to("#hp-line2", { opacity: 1, duration: 0.5 }, t0 + r1 * step - 0.4);
+  const pics = $("hp-pics"), vid = $("hp-vid");
+  if (!v.video1) vid.style.display = "none";
+  const frames = items.map((it) => {
+    const f = document.createElement("div"); f.className = "hp";
+    f.innerHTML = `<div class="peg"></div><div class="ph">${it.video ? "" : `<img src="assets/${it.src}">`}</div><div class="cap"></div>`; pics.appendChild(f);
+    const im = new Image(); if (!it.video) im.src = "assets/" + it.src;
+    if (it.video) { const ph = f.querySelector(".ph"); vid.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover"; ph.appendChild(vid); }
+    MK.text(f.querySelector(".cap"), it.cap); return { f, im, it };
+  });
+  const baseH = land ? (ROWS === 2 ? H * 0.3 : H * 0.64) : (ROWS === 2 ? H * 0.22 : H * 0.4);
+  const place = () => frames.forEach((k, i) => {
+    const row = rowOf(i), c = cnt(row), slotW = W / (c + 0.4);
+    const a = k.it.video ? 9 / 16 : (k.im.naturalWidth || 4) / (k.im.naturalHeight || 3), pad = u * 1.3, capH = k.it.cap ? u * 3.4 : u * 0.8;
+    let h = baseH, w = (h - 2 * pad - capH) * a + 2 * pad;
+    const mw = Math.min(slotW * 0.96, W * 0.44); if (w > mw) { w = mw; h = (w - 2 * pad) / a + 2 * pad + capH; }
+    const x = W * (colOf(i) + 1) / (c + 1), y = sy(x, row) + u * 2.2;
+    k.f.style.width = w + "px"; k.f.style.height = h + "px"; k.f.style.left = x - w / 2 + "px"; k.f.style.top = y + "px";
+    k.f.querySelector(".ph").style.height = h - 2 * pad - capH + "px"; k.f.querySelector(".ph").style.marginBottom = capH + "px";
+    k.w = w; k.h = h; k.cx = x; k.cy = y + h / 2;
+  });
+  place(); Promise.all(frames.map((k) => (k.im.decode && k.im.src ? k.im.decode().catch(() => {}) : null))).then(place);
+  frames.forEach((k, i) => {
+    const t = t0 + i * step, dir = i % 2 ? 1 : -1;
+    if (k.it.video && i === 0) {
+      // the moving photo: it starts big in the middle of the screen (as if the video just continued), then shrinks and swings onto the string
+      const s0 = Math.min(0.92 * H / k.h, 0.92 * W / k.w);
+      gsap.set(k.f, { opacity: 1, x: W / 2 - k.cx, y: H / 2 - k.cy, scale: s0, rotation: 0, zIndex: 20 });
+      tl.to(k.f, { x: 0, y: 0, scale: 1, rotation: dir * 6, duration: 1.0, ease: "power3.inOut" }, 0.55)
+        .to(k.f, { rotation: 0, duration: 1.3, ease: "elastic.out(1, 0.35)" }, 1.4)
+        .to(k.f, { rotation: dir * -2.2, duration: 1.9, ease: "sine.inOut", yoyo: true, repeat: Math.ceil(D / 1.8) }, 2.7);
+      if (k.it.cap) tl.fromTo(k.f.querySelector(".cap"), { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1.5);
+      return;
+    }
+    gsap.set(k.f, { opacity: 0, y: -H * 0.6, rotation: dir * 14 });
+    tl.to(k.f, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, t)
+      .to(k.f, { rotation: 0, duration: 1.3, ease: "elastic.out(1, 0.35)" }, t + 0.2)
+      .to(k.f, { rotation: dir * -2.2, duration: 1.7 + (i % 3) * 0.3, ease: "sine.inOut", yoyo: true, repeat: Math.ceil(D / 1.8) }, t + 1.5);
+    if (k.it.cap) tl.fromTo(k.f.querySelector(".cap"), { opacity: 0 }, { opacity: 1, duration: 0.6 }, t + 0.5);
+  });
+  // titles: the first appears once the first string is full; the second one replaces it when the second string starts
+  const showTitle = (text, at, until) => { MK.text($("hp-title"), text); tl.fromTo("#hp-title", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 1.0, ease: "sine.out" }, at).to("#hp-title", { opacity: 0, duration: 0.6 }, until); };
+  if (v.caption && r2 > 0 && v.caption2) {
+    const t2 = t0 + r1 * step - 0.4;
+    showTitle(v.caption, t0 + r1 * step - 1.6, t2 - 0.1);
+    const h2 = document.createElement("h2"); h2.id = "hp-title2"; h2.style.cssText = $("hp-title").style.cssText; h2.className = ""; $("hp-tx").appendChild(h2);
+    h2.setAttribute("style", "position:absolute;left:0;right:0;bottom:" + u * 4.5 + "px;text-align:center;font-weight:200;font-size:" + u * 5.2 + "px;letter-spacing:.18em;color:#fff3e6;text-shadow:0 0 " + u * 3 + "px rgba(255,190,150,.8);margin:0;opacity:0;unicode-bidi:plaintext");
+    MK.text(h2, v.caption2); tl.fromTo(h2, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 1.0, ease: "sine.out" }, t0 + n * step - 0.2).to(h2, { opacity: 0, duration: 0.6 }, D - 0.7);
+  } else if (v.caption) showTitle(v.caption, t0 + n * step - 0.2, D - 0.7);
+  tl.to([pics, "#hp-str", "#hp-lights"], { opacity: 0, duration: 0.6, ease: "sine.in" }, D - 0.65);
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+</script>
+</html>

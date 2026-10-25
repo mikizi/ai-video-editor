@@ -1,0 +1,13 @@
+{
+  "id": "title-card",
+  "label": "Title card",
+  "description": "Big animated title with a subtitle on a moving color gradient. Great as the first shot.",
+  "default_seconds": 3.5,
+  "fields": [
+    {"id": "title", "label": "Title", "type": "string", "default": "Our Trip"},
+    {"id": "subtitle", "label": "Subtitle", "type": "string", "default": "Summer 2026"},
+    {"id": "accent", "label": "Accent color", "type": "color", "default": "#FFD400"},
+    {"id": "bg_from", "label": "Background 1", "type": "color", "default": "#0E2A47"},
+    {"id": "bg_to", "label": "Background 2", "type": "color", "default": "#19D3C5"}
+  ]
+}

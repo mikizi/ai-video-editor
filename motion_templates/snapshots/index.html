@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"photo1","type":"string","label":"Photo 1","default":""},{"id":"shape1","type":"string","label":"Shape 1","default":"L"},{"id":"cap1","type":"string","label":"Caption 1","default":""},
+  {"id":"photo2","type":"string","label":"Photo 2","default":""},{"id":"shape2","type":"string","label":"Shape 2","default":"L"},{"id":"cap2","type":"string","label":"Caption 2","default":""},
+  {"id":"photo3","type":"string","label":"Photo 3","default":""},{"id":"shape3","type":"string","label":"Shape 3","default":"L"},{"id":"cap3","type":"string","label":"Caption 3","default":""},
+  {"id":"photo4","type":"string","label":"Photo 4","default":""},{"id":"shape4","type":"string","label":"Shape 4","default":"L"},{"id":"cap4","type":"string","label":"Caption 4","default":""},
+  {"id":"caption","type":"string","label":"Title","default":""},
+  {"id":"bg_video","type":"string","label":"Backdrop video","default":""},
+  {"id":"accent","type":"color","label":"Accent","default":"#FFD400"},
+  {"id":"bg_from","type":"color","label":"Background 1","default":"#1a1030"},
+  {"id":"bg_to","type":"color","label":"Background 2","default":"#7b2d5e"}
+]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;800&display=block" />
+<link rel="stylesheet" href="base.css" />
+<script src="gsap.min.js"></script>
+<style>
+  :root { --accent: #FFD400; --bg1: #1a1030; --bg2: #7b2d5e; }
+  #root { width: __W__px; height: __H__px; }
+  #sn-bg { background: radial-gradient(ellipse at 50% 40%, var(--bg2) 0%, var(--bg1) 80%); }
+  .bokeh { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.28), rgba(255,255,255,0) 70%); }
+  #sn-cards { position: absolute; inset: 0; }
+  .card { position: absolute; background: #fffdf7; box-sizing: border-box; box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 6) rgba(0,0,0,.55); will-change: transform; }
+  .card .ph { position: relative; overflow: hidden; background: #222; }
+  .card .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .cap { position: absolute; left: 0; right: 0; text-align: center; color: #3a3550; font-weight: 500; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 calc(var(--u) * 1); box-sizing: border-box; }
+  .card .tape { position: absolute; left: 50%; top: calc(var(--u) * -1.6); width: calc(var(--u) * 11); height: calc(var(--u) * 3.4); margin-left: calc(var(--u) * -5.5); background: rgba(255,232,150,.78); transform: rotate(-3deg); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+  #sn-flash { background: #fff; }
+  #sn-title { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5); text-align: center; font-weight: 300; font-size: calc(var(--u) * 6.4); letter-spacing: .12em; margin: 0; padding: 0 calc(var(--u) * 5); text-shadow: 0 calc(var(--u) * .6) calc(var(--u) * 3) rgba(0,0,0,.6); }
+  #sn-title::after { content: ""; display: block; width: calc(var(--u) * 14); height: calc(var(--u) * .8); border-radius: 99px; background: var(--accent); margin: calc(var(--u) * 1.6) auto 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+  <video id="sn-vid" class="layer clip" src="assets/bg_video.mp4" muted playsinline loop data-start="0" data-duration="__DUR__" data-track-index="0" style="width:100%;height:100%;object-fit:cover;filter:blur(10px) brightness(.7) saturate(1.15);transform:scale(1.1)"></video>
+  <div id="sn-bg" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+  <div id="sn-boke" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="1"></div>
+  <div id="sn-cards" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="2"></div>
+  <div id="sn-flash" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="4"></div>
+  <div id="sn-tl" class="layer clip" data-start="0" data-duration="__DUR__" data-track-index="5"><h2 id="sn-title"></h2></div>
+</div>
+<script src="motion-kit.js"></script>
+<script>
+  const v = MK.vars, D = MK.D, W = MK.W, H = MK.H, u = Math.min(W, H) / 100;
+  MK.colors({ "--accent": v.accent, "--bg1": v.bg_from, "--bg2": v.bg_to });
+  const items = [1, 2, 3, 4].map((i) => ({ src: v["photo" + i], shape: (v["shape" + i] || "L").toUpperCase(), cap: v["cap" + i] || "" })).filter((x) => x.src);
+  const n = Math.max(items.length, 1), land = W >= H;
+  // slots: centre (fraction of the frame), tilt, card height (fraction of the frame height)
+  const SL = land
+    ? { 1: [[.5, .50, -2, .74]], 2: [[.30, .50, -5, .66], [.70, .50, 4, .66]], 3: [[.19, .53, -6, .58], [.50, .46, 3, .68], [.81, .53, 6, .58]], 4: [[.15, .56, -6, .52], [.38, .44, 4, .52], [.62, .56, -4, .52], [.85, .44, 6, .52]] }
+    : { 1: [[.5, .46, -2, .50]], 2: [[.5, .30, -4, .34], [.5, .66, 4, .34]], 3: [[.5, .22, -4, .28], [.5, .50, 3, .28], [.5, .78, -3, .28]], 4: [[.3, .26, -5, .24], [.7, .40, 4, .24], [.3, .60, -4, .24], [.7, .76, 5, .24]] };
+  const slots = SL[Math.min(n, 4)];
+  const ASP = { L: 4 / 3, P: 3 / 4, S: 1 };
+  const bokeh = document.getElementById("sn-boke");
+  const bk = [[.12, .2, 22], [.85, .18, 30], [.7, .82, 26], [.2, .78, 34], [.5, .1, 16], [.93, .6, 20]].map(([x, y, s]) => {
+    const e = document.createElement("div"); e.className = "bokeh"; e.style.width = e.style.height = u * s + "px"; e.style.left = W * x - u * s / 2 + "px"; e.style.top = H * y - u * s / 2 + "px"; bokeh.appendChild(e); return e; });
+  const cardsEl = document.getElementById("sn-cards");
+  const padT = u * 1.6, padS = u * 1.6, padB = u * 5.6;
+  const cards = items.map((it, i) => {
+    const [fx, fy, rot, hf] = slots[i];
+    const Hc = hf * H, ph = Hc - padT - padB;
+    let pw = ph * ASP[it.shape] || ph * 4 / 3;
+    let Wc = pw + 2 * padS;
+    const maxW = land ? (n === 1 ? 0.62 : 0.46) * W : 0.86 * W;
+    if (Wc > maxW) { const k = maxW / Wc; Wc *= k; pw *= k; }
+    const phh = pw / (ASP[it.shape] || 4 / 3);
+    const Hc2 = phh + padT + padB;
+    const c = document.createElement("div"); c.className = "card";
+    c.style.width = Wc + "px"; c.style.height = Hc2 + "px"; c.style.padding = `${padT}px ${padS}px 0`;
+    c.style.left = W * fx - Wc / 2 + "px"; c.style.top = H * fy - Hc2 / 2 + "px";
+    c.innerHTML = `<div class="tape"></div><div class="ph" style="height:${phh}px"><img src="assets/${it.src}"></div><div class="cap" style="bottom:${u * 1.4}px;font-size:${u * 2.7}px"></div>`;
+    MK.text(c.querySelector(".cap"), it.cap);
+    cardsEl.appendChild(c);
+    return { c, fx, fy, rot, Wc, Hc: Hc2 };
+  });
+  MK.text(document.getElementById("sn-title"), v.caption || "");
+  if (!v.caption) document.getElementById("sn-title").style.display = "none";
+  if (v.bg_video) document.getElementById("sn-bg").style.display = "none"; else document.getElementById("sn-vid").style.display = "none";
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  const t00 = 0.25, tail = 1.9;
+  // time per photo adapts to the scene length: each photo gets a real beat to be looked at, at full size, before it settles
+  const step = Math.min(2.2, Math.max(1.1, (D - t00 - tail) / n)), flyAt = Math.min(1.15, step * 0.55), settle = 0.8;
+  tl.fromTo("#sn-bg", { scale: 1.2 }, { scale: 1, duration: D, ease: "none" }, 0);
+  bk.forEach((e, i) => tl.fromTo(e, { y: 30, opacity: 0 }, { y: -30 - i * 6, opacity: 1, duration: D, ease: "sine.inOut" }, 0));
+  gsap.set("#sn-flash", { opacity: 0 });
+  cards.forEach((k, i) => {
+    const t0 = t00 + i * step;
+    const S0 = Math.min(0.9 * W / k.Wc, 0.86 * H / k.Hc);   // start big but WITH the white border and tape visible (not zoomed past the edges)
+    gsap.set(k.c, { opacity: 0, x: W / 2 - W * k.fx, y: H / 2 - H * k.fy, scale: S0, rotation: k.rot * 0.25, zIndex: i + 1 });
+    // the photo grows in from a little smaller while it fades up (no more "not here, then poof it is")
+    tl.fromTo(k.c, { opacity: 0, scale: S0 * 0.78 }, { opacity: 1, scale: S0, duration: 0.4, ease: "power2.out" }, t0)
+      // (no white flash and no viewfinder corners: the punch-in settle carries the "shutter" feel)
+      .to(k.c, { scale: S0 * 1.03, duration: Math.max(0.3, flyAt - 0.4), ease: "none" }, t0 + 0.4)
+      .to(k.c, { x: 0, y: 0, scale: 1, rotation: k.rot, duration: settle, ease: "power3.inOut" }, t0 + flyAt)
+      .to(k.c, { y: (i % 2 ? -1 : 1) * u * 1.0, rotation: k.rot * 0.55, duration: Math.max(0.5, D - t0 - flyAt - settle - 0.45), ease: "sine.inOut" }, t0 + flyAt + settle)
+      .to(k.c, { y: "-=" + H * 0.22, opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.42);
+  });
+  if (v.caption) tl.fromTo("#sn-title", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, t00 + n * step + 0.1)
+    .to("#sn-title", { opacity: 0, duration: 0.35 }, D - 0.4);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
