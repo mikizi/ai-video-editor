@@ -15,6 +15,7 @@ git clone https://github.com/<you>/ai-video-editor && cd ai-video-editor
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 (cd remotion-composer && npm install)       # HyperFrames runs via `npx hyperframes` (no global install)
+python scripts/install_skills.py       # make all bundled skills visible to Claude Code
 cp .env.example .env                  # add keys only for the providers you use
 ```
 
@@ -24,6 +25,8 @@ Try it with no photos of your own:
 python scripts/make_demo_project.py   # synthetic demo project
 python -m backlot serve --port 4750   # open http://127.0.0.1:4750/
 ```
+
+`install_skills.py` links the skills that only ship for Codex into `.claude/skills/`; add `--user` to install them for all your projects.
 
 Then open the folder in Claude Code and just ask, e.g. *"Make a 30-second montage from my
 trip folder with upbeat music."* `CLAUDE.md` → `AGENT_GUIDE.md` tells the agent how to work.
@@ -43,6 +46,12 @@ trip folder with upbeat music."* `CLAUDE.md` → `AGENT_GUIDE.md` tells the agen
 - Live preview runs the same composition as the final render; autosave; you and Claude can edit the same timeline
 
 ![Media bin and motion scenes](docs/images/editor/motion.png)
+
+**Review notes: code review for your film.** Press `C` (or 💬 Notes) to pin a comment to any moment on the
+timeline. Claude works through them like PR comments: fixes the edit, replies, and marks them *fixed*;
+you **Approve** or send them back. Notes are color-coded by state and follow their clip when you reorder.
+
+![Review notes](docs/images/editor/notes.png)
 
 **3. Add animated motion scenes** (HyperFrames, rendered into clips on your timeline)
 Title / chapter / outro cards, photo collage, collage wall, snapshots, film strip, hanging photos,

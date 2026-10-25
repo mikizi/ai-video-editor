@@ -111,6 +111,24 @@ def main() -> int:
         "music": {"src": "music/demo-loop.wav", "offset": 0, "volume": 0.8, "duck_volume": 0.25,
                   "fade_in": 0.5, "fade_out": 2, "start_at": "clips"},
     }
+    ts = "2026-01-01T10:00:00Z"
+    timeline["comments"] = [
+        {"id": "n1", "text": "Open with the night shot - it's the strongest image", "status": "open",
+         "clip": "c03", "offset": 0.5, "created": ts, "replies": []},
+        {"id": "n2", "text": "Cut is too abrupt here, can we soften it?", "status": "open",
+         "clip": "c04", "offset": 0.3, "created": ts, "replies": [
+             {"by": "claude", "text": "Is a longer fade OK, or do you want a different transition?", "ts": ts}]},
+        {"id": "n3", "text": "Title is too small on the first clip", "status": "review",
+         "clip": "c01", "offset": 1.0, "created": ts, "replies": [
+             {"by": "claude", "text": "Switched to the 'title' style and made it bigger.", "ts": ts}]},
+        {"id": "n4", "text": "Lagoon holds too long, trim to 2s", "status": "open",
+         "clip": "c05", "offset": 1.5, "created": ts, "replies": [
+             {"by": "claude", "text": "Trimmed to 2.0s.", "ts": ts},
+             {"by": "user", "text": "Still feels long, try 1.5s", "ts": ts}]},
+        {"id": "n5", "text": "Music is too loud under the title", "status": "resolved",
+         "clip": "c01", "offset": 0.2, "created": ts, "resolved_at": ts, "replies": [
+             {"by": "claude", "text": "Ducked the music to 25% under text.", "ts": ts}]},
+    ]
     (art / "timeline.json").write_text(json.dumps(timeline, indent=2))
     pj = PROJECT / "project.json"
     if not pj.exists():
