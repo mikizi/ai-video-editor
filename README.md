@@ -69,6 +69,26 @@ generation, TTS, music, stock footage, captions, upscaling, analysis); see [docs
 
 **6. Export** the final MP4: `Export MP4` in the editor, or `python scripts/render_timeline.py <project>`.
 
+## First video prompt
+
+Once it's installed, paste this into Claude Code to get a tour video of the editor itself (uses the synthetic demo project, no personal media or API keys):
+
+```text
+Make a ~60-second landscape (16:9) video that explains how this editor works. Use only the synthetic demo project (python scripts/make_demo_project.py) so no personal media appears. Start the editor yourself (python -m backlot serve --port 4750) and capture real 1600x1000 screenshots at each step of the flow:
+1. The library and "New montage"
+2. Importing media: local folder, Google Photos, YouTube/online link
+3. The media bin and the timeline: reorder, trim, split, zoom
+4. Transitions, Ken-Burns motion, color looks, fonts, animated text, music with ducking
+5. The Motion tab: a HyperFrames title card added as a clip
+6. Review notes: pin a note, Claude fixes and replies, you approve, like a code review
+7. Chatting with Claude Code to build the edit, and the Backlot board showing the pipeline live
+8. Preview render and Export MP4
+
+Build the video as a montage timeline in a new project: each screenshot is a clip with slow zoom or pan, a short caption (max 6 words) in the accent color, a different transition per cut, and a chapter card for each of the 8 steps. Add a title card first, an outro last ("Describe your video, finish it in the editor") and a calm instrumental music bed with fades. Zoom into the relevant area of the UI where it helps, with a highlight circle or arrow on the thing being explained.
+
+Show me the plan and the shot list first and wait for my OK. Then render a draft preview, give me the frames to check, fix anything off, and export the final MP4. Tell me what you checked and where the file is.
+```
+
 ## Layout
 
 | Path | What |
