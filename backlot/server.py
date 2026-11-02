@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import subprocess
+import threading
 import time
 from pathlib import Path
 from typing import Optional
@@ -151,6 +153,50 @@ async def _watch_projects() -> None:
             hub.publish(pid)
 
 
+_PROXY_BUSY: set[str] = set()
+_PROXY_LOCK = threading.Lock()
+_PROXY_RUN = threading.Semaphore(1)                 # one conversion at a time, so the Mac stays usable
+_PROXY_MIN_BYTES = 12 * 1024 * 1024
+
+
+def _proxy_for(project_dir: Path, src: Path, rel: Path) -> Optional[Path]:
+    """The light preview copy of ``src`` if it exists; otherwise start making it in the background and return None."""
+    dst = project_dir / "proxy" / (Path("__".join(rel.parts[2:])).stem + ".mp4")
+    old = project_dir / "proxy" / (src.stem + ".mp4")          # copies made earlier by scripts/make_proxies.py (no sound)
+    if dst.is_file() and dst.stat().st_mtime >= src.stat().st_mtime:
+        return dst
+    if len(rel.parts) == 3 and old.is_file() and old.stat().st_mtime >= src.stat().st_mtime:
+        return old
+    if src.stat().st_size < _PROXY_MIN_BYTES:
+        return None
+    key = str(dst)
+    with _PROXY_LOCK:
+        if key in _PROXY_BUSY:
+            return None
+        _PROXY_BUSY.add(key)
+
+    def work() -> None:
+        tmp = dst.with_suffix(".part.mp4")
+        try:
+            with _PROXY_RUN:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                r = subprocess.run(
+                    ["ffmpeg", "-v", "error", "-y", "-i", str(src), "-map", "0:v:0", "-map", "0:a:0?",
+                     "-vf", "scale='if(gt(iw,ih),960,540)':-2,fps=30",
+                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "27", "-g", "15", "-keyint_min", "15",
+                     "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", str(tmp)],
+                    capture_output=True, text=True)
+                if r.returncode == 0:
+                    tmp.replace(dst)
+        finally:
+            tmp.unlink(missing_ok=True)
+            with _PROXY_LOCK:
+                _PROXY_BUSY.discard(key)
+
+    threading.Thread(target=work, daemon=True).start()
+    return None
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Backlot", docs_url=None, redoc_url=None)
 
@@ -246,7 +292,7 @@ def create_app() -> FastAPI:
     # ---- Thumbnails (downscaled, cached on disk) ------------------------
 
     @app.get("/thumb/{project_id}/{file_path:path}")
-    async def thumb(project_id: str, file_path: str, w: int = 640) -> FileResponse:
+    async def thumb(project_id: str, file_path: str, w: int = 640, t: float = 1.5) -> FileResponse:
         project_dir = _safe_project_dir(project_id)
         target = (project_dir / file_path).resolve()
         try:
@@ -256,7 +302,7 @@ def create_app() -> FastAPI:
         if not target.is_file():
             raise HTTPException(status_code=404, detail="media not found")
         width = min(THUMB_WIDTHS, key=lambda x: abs(x - w))
-        cached = await asyncio.to_thread(_thumbnail_for, target, width)
+        cached = await asyncio.to_thread(_thumbnail_for, target, width, t)
         if cached is None:
             # Never fall back to raw video bytes for an <img> consumer (F-03);
             # non-thumbable images are safe to serve as-is.
@@ -277,13 +323,13 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=403, detail="path escapes project")
         if not target.is_file():
             raise HTTPException(status_code=404, detail="media not found")
-        # Editor preview: serve the light proxy (proxy/<name>.mp4, made by
-        # scripts/make_proxies.py) in place of a heavy source video when one exists,
-        # so the live player does not stall on 1080p phone clips. Exports use the originals.
+        # Editor preview: serve a light copy (proxy/) of a heavy source video, so the live player does not stall
+        # on 1080p phone clips or hour-long originals. Made in the background the first time it is asked for;
+        # until it is ready the original is served. Exports use the originals.
         rel = target.relative_to(project_dir.resolve())
-        if len(rel.parts) == 3 and rel.parts[:2] == ("public", "media") and target.suffix.lower() in {".mp4", ".mov"}:
-            proxy = project_dir.resolve() / "proxy" / (target.stem + ".mp4")
-            if proxy.is_file():
+        if rel.parts[:2] == ("public", "media") and target.suffix.lower() in {".mp4", ".mov", ".m4v"}:
+            proxy = _proxy_for(project_dir.resolve(), target, rel)
+            if proxy:
                 target = proxy
         # Revalidate every time (ETag keeps it cheap) so a re-rendered motion scene is never stale.
         return FileResponse(target, headers={"Cache-Control": "no-cache"})
@@ -340,7 +386,7 @@ def _sse(payload: dict) -> str:
     return f"data: {json.dumps(payload)}\n\n"
 
 
-def _thumbnail_for(source: Path, width: int) -> Optional[Path]:
+def _thumbnail_for(source: Path, width: int, at: float = 1.5) -> Optional[Path]:
     """Downscale an image (or extract a video poster frame) to a cached JPEG."""
     suffix = source.suffix.lower()
     is_image = suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif"}
@@ -351,7 +397,7 @@ def _thumbnail_for(source: Path, width: int) -> Optional[Path]:
         import hashlib
         stat = source.stat()
         key = hashlib.sha1(
-            f"{source}|{stat.st_mtime_ns}|{stat.st_size}|{width}".encode()
+            f"{source}|{stat.st_mtime_ns}|{stat.st_size}|{width}|{at}".encode()
         ).hexdigest()[:20]
         cached = THUMB_CACHE_DIR / f"{key}.jpg"
         if cached.is_file():
@@ -364,7 +410,7 @@ def _thumbnail_for(source: Path, width: int) -> Optional[Path]:
         if is_video:
             import subprocess
             result = subprocess.run(
-                ["ffmpeg", "-y", "-loglevel", "error", "-ss", "1.5",
+                ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(max(0.0, at)),
                  "-i", str(source), "-frames:v", "1",
                  "-vf", f"scale={width}:-2", str(tmp)],
                 capture_output=True, timeout=30,

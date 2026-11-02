@@ -535,6 +535,16 @@ def _scan_media(project_dir: Path) -> dict[str, list[dict]]:
 def _find_poster(project_dir: Path, state: dict) -> Optional[str]:
     """Best poster for the library card (image path, or a video path —
     the /thumb endpoint extracts a frame from videos)."""
+    marker = _read_json(project_dir / "project.json") or {}
+    if marker.get("cover") and (project_dir / marker["cover"]).is_file():
+        return marker["cover"]
+    # Montage projects: the first video or photo on the timeline is the automatic cover.
+    tl = _read_json(project_dir / "artifacts" / "timeline.json") or {}
+    for clip in tl.get("clips", []):
+        src = clip.get("src")
+        if src and (project_dir / "public" / src).is_file():
+            state["poster_t"] = round(float(clip.get("in") or 0) + 0.5, 2) if clip.get("kind") == "video" else 0
+            return f"public/{src}"
     board = state.get("storyboard") or {}
     for card in board.get("scenes", []):
         visual = card.get("visual")
@@ -653,6 +663,7 @@ def load_board_state(project_dir: Path) -> dict[str, Any]:
         "live": bool(last_activity and (now - last_activity) < LIVE_WINDOW_SECONDS),
     }
     state["poster"] = _find_poster(project_dir, state)
+    state["poster_v"] = (_read_json(project_dir / "project.json") or {}).get("cover_v") or 0
     return state
 
 
@@ -667,6 +678,8 @@ def summarize_project(project_dir: Path) -> dict[str, Any]:
         "pipeline_type": state["pipeline"]["pipeline_type"],
         "has_pipeline_state": state["has_pipeline_state"],
         "poster": state["poster"],
+        "poster_v": state["poster_v"],
+        "poster_t": state.get("poster_t", 1.5),
         "live": state["live"],
         "last_activity": state["last_activity"],
         "active_stage": active["name"] if active else None,

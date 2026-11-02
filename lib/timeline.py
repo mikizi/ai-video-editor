@@ -241,6 +241,36 @@ def probe_duration(path: Path) -> Optional[float]:
         return None
 
 
+def probe_has_audio(path: Path) -> bool:
+    try:
+        res = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=codec_type", "-of", "csv=p=0", str(path)],
+                             capture_output=True, text=True, timeout=30)
+        return "audio" in res.stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def probe_size(path: Path) -> Optional[tuple[int, int]]:
+    """Displayed pixel size (width, height) of a photo or video, with rotation applied. None if unknown."""
+    try:
+        if path.suffix.lower() in IMAGE_EXTS:
+            from PIL import Image
+            with Image.open(path) as im:
+                w, h = im.size
+                if im.getexif().get(274) in (5, 6, 7, 8):   # EXIF says the photo is turned: browsers show it turned
+                    w, h = h, w
+            return int(w), int(h)
+        res = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:stream_side_data=rotation",
+             "-of", "json", str(path)], capture_output=True, text=True, timeout=30)
+        st = json.loads(res.stdout)["streams"][0]
+        w, h = int(st["width"]), int(st["height"])
+        rot = abs(int(float((st.get("side_data_list") or [{}])[0].get("rotation", 0)))) % 180
+        return (h, w) if rot == 90 else (w, h)
+    except (OSError, ValueError, KeyError, IndexError, subprocess.TimeoutExpired):
+        return None
+
+
 def _natural_key(name: str):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", name)]
 

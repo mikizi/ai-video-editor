@@ -43,7 +43,7 @@ function miniRail(states) {
 function card(p) {
   const poster = el("div", { class: "lib-poster" });
   if (p.poster) {
-    poster.append(el("img", { src: thumbURL(p.project_id, p.poster, 640), loading: "lazy", alt: "" }));
+    poster.append(el("img", { src: thumbURL(p.project_id, p.poster, 640, `&t=${p.poster_t ?? 1.5}&v=${p.poster_v || 0}`), loading: "lazy", alt: "" }));
   } else {
     poster.append(el("span", { class: "lp-txt" }, "NO MEDIA YET"));
   }
@@ -74,8 +74,36 @@ function card(p) {
       )),
     el("div", { class: "lib-actions" },
       el("a", { class: "lib-edit", href: editHref }, p.has_timeline ? "✂ Edit montage" : "✂ Start montage"),
+      el("button", { class: "lib-btn", type: "button", title: "Rename", onclick: () => renameProject(p) }, "✎ Name"),
+      el("button", { class: "lib-btn", type: "button", title: "Choose a cover photo", onclick: () => pickCover(p) }, "🖼 Cover"),
+      p.poster_v ? el("button", { class: "lib-btn", type: "button", title: "Back to the automatic cover", onclick: () => resetCover(p) }, "↺ Auto") : null,
       el("a", { class: "lib-board", href: `/p/${encodeURIComponent(p.project_id)}${staticSuffix}` }, "Board")),
   );
+}
+
+async function renameProject(p) {
+  const title = (prompt("New name", p.title || p.project_id) || "").trim();
+  if (!title || title === p.title) return;
+  const r = await fetch(`/api/editor/${encodeURIComponent(p.project_id)}/rename`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title }) });
+  if (!r.ok) alert("Could not rename");
+  render().catch(console.error);
+}
+
+function pickCover(p) {
+  const inp = el("input", { type: "file", accept: "image/*" });
+  inp.onchange = async () => {
+    const f = inp.files[0];
+    if (!f) return;
+    const r = await fetch(`/api/editor/${encodeURIComponent(p.project_id)}/cover`, { method: "POST", body: f });
+    if (!r.ok) alert("Could not set the cover");
+    render().catch(console.error);
+  };
+  inp.click();
+}
+
+async function resetCover(p) {
+  await fetch(`/api/editor/${encodeURIComponent(p.project_id)}/cover`, { method: "POST", body: "" });
+  render().catch(console.error);
 }
 
 async function render() {
