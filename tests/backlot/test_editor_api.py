@@ -76,7 +76,7 @@ def test_new_project_and_import(client, tmp_path, monkeypatch):
     assert s["folders"] == [{"path": "source-media/picked", "count": 1}] and s["in_bin"] == 0
 
     r = client.post("/api/editor/poland-trip/import", json={"folder": "source-media/picked"})
-    assert r.json() == {"found": 1, "added": 1}
+    assert r.json() == {"found": 1, "added": 1, "ignored": {}, "folder": "picked"}
     again = client.post("/api/editor/poland-trip/import", json={"folder": "source-media/picked"})
     assert again.json()["added"] == 0  # no duplicates
     assert client.get("/api/editor/poland-trip/sources").json()["in_bin"] == 1

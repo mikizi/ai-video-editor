@@ -132,29 +132,76 @@
       "description": "Review notes pinned to the timeline. The user adds them in the editor; Claude works through them as a checklist, replies, and marks them 'review' when fixed; the user approves (status 'resolved') or reopens.",
       "items": {
         "type": "object",
-        "required": ["id", "text", "status"],
+        "required": [
+          "id",
+          "text",
+          "status"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string" },
-          "text": { "type": "string" },
-          "status": { "enum": ["open", "review", "resolved"] },
-          "clip": { "type": "string", "description": "Clip the note is pinned to (follows it when clips move)." },
-          "group": { "type": "string", "description": "Group (area) the note belongs to. If the clip is removed the note stays at the start of this group." },
-          "offset": { "type": "number", "minimum": 0, "description": "Seconds into that clip." },
-          "at": { "type": "number", "minimum": 0, "description": "Editor-clock seconds (used when there is no clip)." },
-          "created": { "type": "string" },
-          "updated": { "type": "string", "description": "Last change (ISO time). The newer copy of a note wins when two writers collide." },
-          "resolved_at": { "type": "string" },
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "review",
+              "resolved"
+            ]
+          },
+          "clip": {
+            "type": "string",
+            "description": "Clip the note is pinned to (follows it when clips move)."
+          },
+          "group": {
+            "type": "string",
+            "description": "Group (area) the note belongs to. If the clip is removed the note stays at the start of this group."
+          },
+          "offset": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Seconds into that clip."
+          },
+          "at": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Editor-clock seconds (used when there is no clip)."
+          },
+          "created": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "string",
+            "description": "Last change (ISO time). The newer copy of a note wins when two writers collide."
+          },
+          "resolved_at": {
+            "type": "string"
+          },
           "replies": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["by", "text"],
+              "required": [
+                "by",
+                "text"
+              ],
               "additionalProperties": false,
               "properties": {
-                "by": { "enum": ["user", "claude"] },
-                "text": { "type": "string" },
-                "ts": { "type": "string" }
+                "by": {
+                  "enum": [
+                    "user",
+                    "claude"
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -166,27 +213,97 @@
       "description": "Small video cards shown on top of the whole edit for a time range (for example a mini route map over a drive). start/end are seconds from the start of the `follow` clip (or on the montage clock if follow is omitted).",
       "items": {
         "type": "object",
-        "required": ["id", "src", "start", "end"],
+        "required": [
+          "id",
+          "src",
+          "start",
+          "end"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string" },
-          "src": { "type": "string" },
-          "follow": { "type": "string" },
-          "start": { "type": "number", "minimum": -5 },
-          "end": { "type": "number", "minimum": 0 },
-          "x": { "type": "number", "minimum": 0, "maximum": 1 },
-          "y": { "type": "number", "minimum": 0, "maximum": 1 },
-          "width": { "type": "number", "minimum": 0.08, "maximum": 1 },
-          "aspect": { "type": "number", "minimum": 0.3, "maximum": 2, "description": "Card height / width (default 0.5625 = a 16:9 card)." },
-          "rotate": { "type": "number", "minimum": -30, "maximum": 30 },
-          "in": { "type": "number", "minimum": 0, "description": "Start the overlay video this many seconds in." },
-          "flat": { "type": "boolean", "description": "Split-screen column: edge to edge, no frame, hard cut in and out." },
-          "reveal": { "type": "boolean", "description": "flat only: wipe the video up from the bottom edge." },
-          "reveal_seconds": { "type": "number", "minimum": 0.1 },
-          "exit": { "enum": ["up", "down"], "description": "flat only: slide out of the frame at the end (up or down)." },
-          "exit_seconds": { "type": "number", "minimum": 0.1 },
-          "reveal_from": { "enum": ["bottom", "top"], "description": "flat + reveal: which edge the video wipes in from (default bottom)." },
-          "speed": { "type": "number", "minimum": 0.1, "maximum": 4 }
+          "id": {
+            "type": "string"
+          },
+          "src": {
+            "type": "string"
+          },
+          "follow": {
+            "type": "string"
+          },
+          "start": {
+            "type": "number",
+            "minimum": -5
+          },
+          "end": {
+            "type": "number",
+            "minimum": 0
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "width": {
+            "type": "number",
+            "minimum": 0.08,
+            "maximum": 1
+          },
+          "aspect": {
+            "type": "number",
+            "minimum": 0.3,
+            "maximum": 2,
+            "description": "Card height / width (default 0.5625 = a 16:9 card)."
+          },
+          "rotate": {
+            "type": "number",
+            "minimum": -30,
+            "maximum": 30
+          },
+          "in": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Start the overlay video this many seconds in."
+          },
+          "flat": {
+            "type": "boolean",
+            "description": "Split-screen column: edge to edge, no frame, hard cut in and out."
+          },
+          "reveal": {
+            "type": "boolean",
+            "description": "flat only: wipe the video up from the bottom edge."
+          },
+          "reveal_seconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "exit": {
+            "enum": [
+              "up",
+              "down"
+            ],
+            "description": "flat only: slide out of the frame at the end (up or down)."
+          },
+          "exit_seconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "reveal_from": {
+            "enum": [
+              "bottom",
+              "top"
+            ],
+            "description": "flat + reveal: which edge the video wipes in from (default bottom)."
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 4
+          }
         }
       }
     },
@@ -195,14 +312,31 @@
       "description": "Compound clips: named groups of consecutive clips (clip.group = group id) that move together in the editor.",
       "items": {
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "collapsed": { "type": "boolean", "default": false },
-          "locked": { "type": "boolean", "default": false },
-          "seconds": { "type": "number", "exclusiveMinimum": 0, "description": "Fixed length of the compound clip in seconds. When set, edits inside the group keep this total by adjusting its last clip, so nothing after it moves." }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "collapsed": {
+            "type": "boolean",
+            "default": false
+          },
+          "locked": {
+            "type": "boolean",
+            "default": false
+          },
+          "seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Fixed length of the compound clip in seconds. When set, edits inside the group keep this total by adjusting its last clip, so nothing after it moves."
+          }
         }
       }
     },
@@ -285,6 +419,38 @@
               "maximum": 600,
               "default": 0,
               "description": "Move the music on the timeline, in seconds: negative = starts sooner, positive = later. Moving it before the start of the video skips into the song."
+            },
+            "lane": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3
+              ],
+              "description": "Music channel."
+            },
+            "vol": {
+              "type": "array",
+              "description": "Volume line: points [{t, db}], t = seconds from the start of the clip or song, db = level change in decibels relative to its volume (0 = no change, -40 = silent). Levels between points are a straight line.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "t",
+                  "db"
+                ],
+                "properties": {
+                  "t": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "db": {
+                    "type": "number",
+                    "minimum": -60,
+                    "maximum": 12
+                  }
+                }
+              }
             }
           }
         }
@@ -293,77 +459,108 @@
     "music_more": {
       "type": "array",
       "description": "More pieces of music after a cut (Split on the music track): same fields as music, placed with at/until.",
-      "items":
-        {
-          "type": "object",
-          "required": [
-            "src"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "src": {
-              "type": "string"
-            },
-            "offset": {
-              "type": "number",
-              "minimum": 0,
-              "default": 0,
-              "description": "Seconds into the song where the montage starts."
-            },
-            "volume": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1,
-              "default": 0.8
-            },
-            "duck_volume": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1,
-              "default": 0.25,
-              "description": "Music volume while a clip with clip audio is playing."
-            },
-            "fade_in": {
-              "type": "number",
-              "minimum": 0,
-              "default": 0.5
-            },
-            "fade_out": {
-              "type": "number",
-              "minimum": 0,
-              "default": 2.0
-            },
-            "start_at": {
-              "type": "string",
-              "enum": [
-                "opener",
-                "clips"
+      "items": {
+        "type": "object",
+        "required": [
+          "src"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "src": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "description": "Seconds into the song where the montage starts."
+          },
+          "volume": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.8
+          },
+          "duck_volume": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.25,
+            "description": "Music volume while a clip with clip audio is playing."
+          },
+          "fade_in": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0.5
+          },
+          "fade_out": {
+            "type": "number",
+            "minimum": 0,
+            "default": 2.0
+          },
+          "start_at": {
+            "type": "string",
+            "enum": [
+              "opener",
+              "clips"
+            ],
+            "default": "clips"
+          },
+          "locked": {
+            "type": "boolean",
+            "default": false
+          },
+          "until": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Where this piece of music ends, in seconds on the montage clock (after the opener). It fades out over fade_out seconds before that point. Omitted = plays to the end of the video."
+          },
+          "at": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Extra music pieces only: where on the montage clock this piece starts."
+          },
+          "shift": {
+            "type": "number",
+            "minimum": -600,
+            "maximum": 600,
+            "default": 0,
+            "description": "Move the music on the timeline, in seconds: negative = starts sooner, positive = later. Moving it before the start of the video skips into the song."
+          },
+          "lane": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "description": "Music channel."
+          },
+          "vol": {
+            "type": "array",
+            "description": "Volume line: points [{t, db}], t = seconds from the start of the clip or song, db = level change in decibels relative to its volume (0 = no change, -40 = silent). Levels between points are a straight line.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "t",
+                "db"
               ],
-              "default": "clips"
-            },
-            "locked": {
-              "type": "boolean",
-              "default": false
-            },
-            "until": {
-              "type": "number",
-              "minimum": 0,
-              "description": "Where this piece of music ends, in seconds on the montage clock (after the opener). It fades out over fade_out seconds before that point. Omitted = plays to the end of the video."
-            },
-            "at": {
-              "type": "number",
-              "minimum": 0,
-              "description": "Extra music pieces only: where on the montage clock this piece starts."
-            },
-            "shift": {
-              "type": "number",
-              "minimum": -600,
-              "maximum": 600,
-              "default": 0,
-              "description": "Move the music on the timeline, in seconds: negative = starts sooner, positive = later. Moving it before the start of the video skips into the song."
+              "properties": {
+                "t": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "db": {
+                  "type": "number",
+                  "minimum": -60,
+                  "maximum": 12
+                }
+              }
             }
           }
         }
+      }
     },
     "beats": {
       "type": "array",
@@ -375,6 +572,252 @@
     },
     "metadata": {
       "type": "object"
+    },
+    "layers": {
+      "type": "array",
+      "description": "Clips on extra video channels (lane 2 and 3), drawn on top of the main video. start/end are seconds on the montage clock (after the opener). Full frame unless width < 1.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "lane",
+          "src",
+          "kind",
+          "start",
+          "end"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lane": {
+            "type": "integer",
+            "enum": [
+              2,
+              3
+            ]
+          },
+          "src": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "video",
+              "image"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "start": {
+            "type": "number",
+            "minimum": 0
+          },
+          "end": {
+            "type": "number",
+            "minimum": 0
+          },
+          "in": {
+            "type": "number",
+            "minimum": 0
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 8
+          },
+          "volume": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "fit": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "contain"
+            ]
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "width": {
+            "type": "number",
+            "minimum": 0.08,
+            "maximum": 1
+          },
+          "opacity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "adjust": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Picture tweaks for this clip, 1 = unchanged.",
+            "properties": {
+              "contrast": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 3
+              },
+              "brightness": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 3
+              },
+              "saturation": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 3
+              }
+            }
+          },
+          "transform": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Move, resize and tilt the picture inside the frame. x and y are offsets as a fraction of the frame width and height (0 = centred), scale 1 = fills the frame, rotate in degrees.",
+            "properties": {
+              "x": {
+                "type": "number",
+                "minimum": -2,
+                "maximum": 2
+              },
+              "y": {
+                "type": "number",
+                "minimum": -2,
+                "maximum": 2
+              },
+              "scale": {
+                "type": "number",
+                "minimum": 0.05,
+                "maximum": 6
+              },
+              "rotate": {
+                "type": "number",
+                "minimum": -360,
+                "maximum": 360
+              }
+            }
+          },
+          "rounded": {
+            "type": "boolean"
+          },
+          "crop": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Cut the edges of the picture: fractions (0 to 0.95) of the picture removed from the left, top, right, bottom.",
+            "properties": {
+              "l": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.95
+              },
+              "t": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.95
+              },
+              "r": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.95
+              },
+              "b": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.95
+              }
+            }
+          },
+          "dim": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 1
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "The picture's own pixel size [width, height]."
+          },
+          "flip": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Mirror the picture: h = left to right, v = upside down.",
+            "properties": {
+              "h": {
+                "type": "boolean"
+              },
+              "v": {
+                "type": "boolean"
+              }
+            }
+          },
+          "vol": {
+            "type": "array",
+            "description": "Volume line: points [{t, db}], t = seconds from the start of the clip or song, db = level change in decibels relative to its volume (0 = no change, -40 = silent). Levels between points are a straight line.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "t",
+                "db"
+              ],
+              "properties": {
+                "t": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "db": {
+                  "type": "number",
+                  "minimum": -60,
+                  "maximum": 12
+                }
+              }
+            }
+          },
+          "pop": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 3,
+            "description": "Pop-up animation: when the layer appears it grows from zero with a bounce. The number is how many seconds the animation lasts (0.6 is a good start)."
+          }
+        }
+      }
+    },
+    "tracks": {
+      "type": "object",
+      "description": "Per-track switches like CapCut's left-hand icons. Keys: v1, v2, v3 (video lanes), m1, m2, m3 (music lanes).",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mute": {
+            "type": "boolean"
+          },
+          "hide": {
+            "type": "boolean"
+          },
+          "lock": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "master_db": {
+      "type": "number",
+      "minimum": -40,
+      "maximum": 6,
+      "description": "Master volume for the whole movie in decibels (0 = unchanged)."
     }
   },
   "$defs": {
@@ -385,9 +828,24 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "x": { "type": "number", "minimum": 0, "maximum": 1, "description": "window: card centre x (fraction of the frame)" },
-        "y": { "type": "number", "minimum": 0, "maximum": 1, "description": "window: card centre y" },
-        "width": { "type": "number", "minimum": 0.08, "maximum": 0.9, "description": "window: card width" },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "window: card centre x (fraction of the frame)"
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "window: card centre y"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0.08,
+          "maximum": 0.9,
+          "description": "window: card width"
+        },
         "type": {
           "type": "string",
           "enum": [
@@ -413,7 +871,8 @@
             "shake",
             "window",
             "reveal-up",
-            "tunnel"
+            "tunnel",
+            "thirds"
           ]
         },
         "seconds": {
@@ -524,19 +983,52 @@
         },
         "pip": {
           "type": "object",
-          "required": ["src"],
+          "required": [
+            "src"
+          ],
           "additionalProperties": false,
           "description": "A second shot shown as a small tilted photo card on top of this clip.",
           "properties": {
-            "src": { "type": "string" },
-            "in": { "type": "number", "minimum": 0 },
-            "out": { "type": "number", "minimum": 0 },
-            "x": { "type": "number", "minimum": 0, "maximum": 1 },
-            "y": { "type": "number", "minimum": 0, "maximum": 1 },
-            "width": { "type": "number", "minimum": 0.08, "maximum": 0.9 },
-            "rotate": { "type": "number", "minimum": -30, "maximum": 30 },
-            "delay": { "type": "number", "minimum": 0 },
-            "speed": { "type": "number", "minimum": 0.1, "maximum": 8 }
+            "src": {
+              "type": "string"
+            },
+            "in": {
+              "type": "number",
+              "minimum": 0
+            },
+            "out": {
+              "type": "number",
+              "minimum": 0
+            },
+            "x": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "y": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "width": {
+              "type": "number",
+              "minimum": 0.08,
+              "maximum": 0.9
+            },
+            "rotate": {
+              "type": "number",
+              "minimum": -30,
+              "maximum": 30
+            },
+            "delay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 8
+            }
           }
         },
         "zoom": {
@@ -606,6 +1098,201 @@
             },
             "params": {
               "type": "object"
+            }
+          }
+        },
+        "adjust": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Picture tweaks for this clip, 1 = unchanged.",
+          "properties": {
+            "contrast": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "brightness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "saturation": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3
+            }
+          }
+        },
+        "transform": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Move, resize and tilt the picture inside the frame. x and y are offsets as a fraction of the frame width and height (0 = centred), scale 1 = fills the frame, rotate in degrees.",
+          "properties": {
+            "x": {
+              "type": "number",
+              "minimum": -2,
+              "maximum": 2
+            },
+            "y": {
+              "type": "number",
+              "minimum": -2,
+              "maximum": 2
+            },
+            "scale": {
+              "type": "number",
+              "minimum": 0.05,
+              "maximum": 6
+            },
+            "rotate": {
+              "type": "number",
+              "minimum": -360,
+              "maximum": 360
+            }
+          }
+        },
+        "bg": {
+          "type": "string",
+          "description": "Colour of the open space around a moved or shrunk picture."
+        },
+        "crop": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Cut the edges of the picture: fractions (0 to 0.95) of the picture removed from the left, top, right, bottom.",
+          "properties": {
+            "l": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.95
+            },
+            "t": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.95
+            },
+            "r": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.95
+            },
+            "b": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.95
+            }
+          }
+        },
+        "dim": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 1
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "The picture's own pixel size [width, height]."
+        },
+        "flip": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Mirror the picture: h = left to right, v = upside down.",
+          "properties": {
+            "h": {
+              "type": "boolean"
+            },
+            "v": {
+              "type": "boolean"
+            }
+          }
+        },
+        "reversed": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Set when the clip was reversed: where it came from, so Reverse can be undone.",
+          "properties": {
+            "src": {
+              "type": "string"
+            },
+            "in": {
+              "type": "number"
+            },
+            "out": {
+              "type": "number"
+            },
+            "source_duration": {
+              "type": "number"
+            }
+          }
+        },
+        "vol": {
+          "type": "array",
+          "description": "Volume line: points [{t, db}], t = seconds from the start of the clip or song, db = level change in decibels relative to its volume (0 = no change, -40 = silent). Levels between points are a straight line.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "t",
+              "db"
+            ],
+            "properties": {
+              "t": {
+                "type": "number",
+                "minimum": 0
+              },
+              "db": {
+                "type": "number",
+                "minimum": -60,
+                "maximum": 12
+              }
+            }
+          }
+        },
+        "bgfx": {
+          "type": "object",
+          "description": "Background effect on the person in this clip (blur or replace). status todo = not made yet; the editor makes the processed video, then points src at it and keeps the original cut in orig.",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "none",
+                "blur",
+                "color",
+                "image"
+              ]
+            },
+            "amount": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "color": {
+              "type": "string"
+            },
+            "image": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "todo",
+                "done"
+              ]
+            },
+            "orig": {
+              "type": "object"
+            }
+          }
+        },
+        "cut_from": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Set when the clip was made by cutting (splitting) another: the in/out the clip had before the cut, so Expand can go back to it.",
+          "properties": {
+            "in": {
+              "type": "number"
+            },
+            "out": {
+              "type": "number"
             }
           }
         }

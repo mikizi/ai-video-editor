@@ -58,8 +58,8 @@ export function mediaURL(projectId, relPath) {
 }
 
 // Downscaled cached JPEG for images (full media only in players/lightbox).
-export function thumbURL(projectId, relPath, w = 640) {
-  return `/thumb/${encodeURIComponent(projectId)}/${relPath.split("/").map(encodeURIComponent).join("/")}?w=${w}`;
+export function thumbURL(projectId, relPath, w = 640, extra = "") {
+  return `/thumb/${encodeURIComponent(projectId)}/${relPath.split("/").map(encodeURIComponent).join("/")}?w=${w}${extra}`;
 }
 
 // Subscribe to a server-sent change feed; call onChange (debounced) per burst.

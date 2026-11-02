@@ -6,15 +6,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
 
 :root {
-  --bg: #0a0a0c;
-  --surface: #101013;
-  --surface-2: #16161a;
-  --surface-3: #1c1c21;
-  --border: #232329;
-  --border-soft: #1a1a1f;
-  --text: #ececef;
-  --text-2: #a0a0a9;
-  --text-3: #5f5f68;
+  --bg: #111110;
+  --surface: #1B1A18;
+  --surface-2: #201F1D;
+  --surface-3: #282826;
+  --border: #39342E;
+  --border-soft: #2d2924;
+  --text: #F4EFE6;
+  --text-2: #ABA398;
+  --text-3: #857D72;
   --amber: #f0a83c;
   --amber-dim: rgba(240, 168, 60, 0.14);
   --green: #4fc283;
@@ -1044,7 +1044,14 @@ body:not(.first) .approval-review { animation: none; }
 /* Library: card actions + new montage */
 .lib-actions { display: flex; gap: 8px; padding: 0 14px 14px; align-items: center; }
 .lib-actions a { text-decoration: none; font-size: 12px; border-radius: 8px; padding: 6px 12px; border: 1px solid var(--border-soft); color: inherit; }
-.lib-actions a:hover { border-color: var(--accent, #19d3c5); }
-.lib-actions .lib-edit { background: #19d3c5; color: #04201d; border-color: #19d3c5; font-weight: 600; }
-.new-btn { background: #19d3c5; color: #04201d; border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; margin-right: 12px; }
+.lib-actions a:hover { border-color: var(--accent, #95633F); }
+.lib-actions .lib-btn { font: inherit; font-size: 12px; border-radius: 8px; padding: 6px 12px; border: 1px solid var(--border-soft); color: inherit; background: transparent; cursor: pointer; }
+.lib-actions .lib-btn:hover { border-color: var(--accent, #95633F); }
+.lib-actions .lib-edit { background: #F4EFE6; color: #111110; border-color: #F4EFE6; font-weight: 600; }
+.new-btn { background: #F4EFE6; color: #111110; border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; margin-right: 12px; }
 .new-btn:hover { filter: brightness(1.08); }
+
+.lib-logo { height: 30px; width: auto; display: block; }
+.lib-actions .lib-edit:hover, .new-btn:hover { background: #E8DDC8; }
+.lib-actions { flex-wrap: wrap; }
+.lib-actions a, .lib-actions .lib-btn { white-space: nowrap; padding: 6px 10px; }

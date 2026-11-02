@@ -13,7 +13,7 @@ import { loadFont as loadAssistant } from "@remotion/google-fonts/Assistant";
 import { loadFont as loadAnton } from "@remotion/google-fonts/Anton";
 import { loadFont as loadMontserrat } from "@remotion/google-fonts/Montserrat";
 import { layoutTimeline, textWindow, LaidOut } from "./layout";
-import type { Overlay, Pip, Clip, FamilyMontageProps, TextItem, TextPosition, TextStyle, Timeline, TransitionType } from "./types";
+import type { Overlay, Pip, Clip, FamilyMontageProps, TextItem, TextPosition, TextStyle, Timeline, TransitionType, Adjust, Layer, Transform, Crop, Music, VolPoint } from "./types";
 
 // Fonts load lazily: only the font the timeline uses is downloaded.
 const FONT_LOADERS: Record<string, () => string> = {
@@ -56,7 +56,7 @@ const useSrc = () => {
 // Transitions: style for the incoming (enter) and outgoing (exit) item.
 // p goes 0 -> 1 across the overlap.
 // ---------------------------------------------------------------------------
-interface Fx { opacity: number; transform: string; filter: string; flash: number; bracket?: number; clipPath?: string; glitch?: number; leak?: number; leakX?: number }
+interface Fx { thirds?: number; opacity: number; transform: string; filter: string; flash: number; bracket?: number; clipPath?: string; glitch?: number; leak?: number; leakX?: number }
 const NONE: Fx = { opacity: 1, transform: "", filter: "", flash: 0 };
 
 const rnd = (n: number) => { const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
@@ -99,6 +99,7 @@ function enterFx(type: TransitionType, p: number, tr?: Transition, vw = 1920, vh
       const o = Math.max(0, Math.min(1, (p - 0.4) / 0.5)), k = 1.55 - 0.55 * ease(p);
       return { ...NONE, opacity: o * o * (3 - 2 * o), transform: `scale(${k})`, filter: `blur(${(1 - e) * 9}px)` };
     }
+    case "thirds": return { ...NONE, thirds: p };   // three horizontal bands slide in one after another (drawn in ClipLayer)
     case "reveal-up": return { ...NONE, clipPath: `inset(${(1 - e) * 100}% 0% 0% 0%)`, transform: `translateY(${(1 - e) * 6}%) scale(${1.1 - 0.1 * e})` };
     case "shake": { const q = Math.floor(p * 18); const d = 1 - p; return { ...NONE, transform: `translate(${(rnd(q) - 0.5) * 90 * d}px, ${(rnd(q + 5) - 0.5) * 60 * d}px) rotate(${(rnd(q + 11) - 0.5) * 5 * d}deg) scale(${1 + 0.22 * d})`, flash: 0.35 * d * d }; }
     default: return NONE;
@@ -147,7 +148,7 @@ function motionTransform(motion: Clip["motion"], m: number, localFrame: number, 
 // ---------------------------------------------------------------------------
 // Media
 // ---------------------------------------------------------------------------
-const Media: React.FC<{ clip: Clip; fit: "cover" | "contain"; muted: boolean; blur?: boolean }> = ({ clip, fit, muted, blur }) => {
+const Media: React.FC<{ clip: Clip; fit: "cover" | "contain"; muted: boolean; blur?: boolean; natural?: boolean }> = ({ clip, fit, muted, blur, natural }) => {
   const { fps, width: vw, height: vh } = useVideoConfig();
   const src = useSrc();
   const fx = clip.focus?.x ?? 0.5;
@@ -158,6 +159,10 @@ const Media: React.FC<{ clip: Clip; fit: "cover" | "contain"; muted: boolean; bl
     objectPosition: `${fx * 100}% ${fy * 100}%`,
     ...(blur ? { filter: "blur(40px) brightness(0.7)", transform: "scale(1.15)" } : {}),
   };
+  if (natural && clip.dim && !rot && !blur) {
+    const r = pictureRect(clip.dim, fit, vw, vh, clip.focus);
+    Object.assign(style, { position: "absolute", left: r.left, top: r.top, width: r.w, height: r.h, objectFit: "fill", clipPath: cropCss(clip.crop) });
+  }
   if (rot) {
     // Rotate about the centre; for 90/270 swap the box so the rotated picture still fills the frame.
     const swap = rot === 90 || rot === 270;
@@ -172,7 +177,7 @@ const Media: React.FC<{ clip: Clip; fit: "cover" | "contain"; muted: boolean; bl
       src={src(clip.src)}
       trimBefore={Math.round((clip.in ?? 0) * fps)}
       playbackRate={clip.speed || 1}
-      volume={muted ? 0 : clip.volume ?? 0}
+      volume={muted ? 0 : volOf(clip.volume ?? 0, clip.vol, fps)}
       muted={muted || !(clip.volume ?? 0)}
       pauseWhenBuffering={false}
       style={style}
@@ -238,6 +243,84 @@ const OverlayCard: React.FC<{ o: Overlay; durF: number; filter?: string }> = ({ 
   );
 };
 
+// Volume line: decibels over time (straight lines between points). volOf gives Remotion a number, or a per-frame function when there is a line.
+const dbAt = (pts: VolPoint[], t: number): number => {
+  if (t <= pts[0].t) return pts[0].db;
+  for (let i = 1; i < pts.length; i++) if (t <= pts[i].t) { const a = pts[i - 1], b = pts[i]; return b.t === a.t ? b.db : a.db + ((b.db - a.db) * (t - a.t)) / (b.t - a.t); }
+  return pts[pts.length - 1].db;
+};
+const dbGain = (db: number) => (db <= -40 ? 0 : Math.pow(10, db / 20));
+const volOf = (base: number, pts: VolPoint[] | undefined, fps: number): number | ((f: number) => number) =>
+  pts && pts.length ? (f: number) => Math.max(0, base * dbGain(dbAt(pts, f / fps))) : base;
+const flipCss = (f?: { h?: boolean; v?: boolean }): string => (f?.h || f?.v ? `scale(${f.h ? -1 : 1}, ${f.v ? -1 : 1})` : "");
+const transformCss = (t: Transform | undefined, vw: number, vh: number): string | undefined =>
+  t ? `translate(${(t.x ?? 0) * vw}px, ${(t.y ?? 0) * vh}px) rotate(${t.rotate ?? 0}deg) scale(${t.scale ?? 1})` : undefined;
+
+const cropCss = (c?: Crop): string | undefined =>
+  c && (c.l || c.t || c.r || c.b) ? `inset(${(c.t ?? 0) * 100}% ${(c.r ?? 0) * 100}% ${(c.b ?? 0) * 100}% ${(c.l ?? 0) * 100}%)` : undefined;
+const Cropped: React.FC<{ crop?: Crop; children: React.ReactNode }> = ({ crop, children }) =>
+  cropCss(crop) ? <AbsoluteFill style={{ clipPath: cropCss(crop) }}>{children}</AbsoluteFill> : <>{children}</>;
+
+// The picture at its true proportions inside the frame (cover or contain), placed by `focus`. Used once a picture has `dim` and a transform or crop,
+// so moving / cropping acts on the whole picture and the frame just clips it, like CapCut.
+const pictureRect = (dim: [number, number], fit: "cover" | "contain", vw: number, vh: number, focus?: { x?: number; y?: number }) => {
+  const k = fit === "cover" ? Math.max(vw / dim[0], vh / dim[1]) : Math.min(vw / dim[0], vh / dim[1]);
+  const w = dim[0] * k, h = dim[1] * k;
+  return { w, h, left: (vw - w) * (focus?.x ?? 0.5), top: (vh - h) * (focus?.y ?? 0.5) };
+};
+
+const adjustFilter = (a?: Adjust): string =>
+  a ? [a.contrast != null && a.contrast !== 1 ? `contrast(${a.contrast})` : "", a.brightness != null && a.brightness !== 1 ? `brightness(${a.brightness})` : "",
+       a.saturation != null && a.saturation !== 1 ? `saturate(${a.saturation})` : ""].filter(Boolean).join(" ") : "";
+
+// Pop-up: grows from zero and bounces (a damped spring), then settles at 1. `secs` is how long the pop lasts.
+const popScale = (secs: number | undefined, frame: number, fps: number): number => {
+  if (!secs) return 1;
+  const p = Math.min(1, Math.max(0, frame / fps / secs));
+  return p >= 1 ? 1 : 1 - Math.exp(-5 * p) * Math.cos(9 * p);
+};
+
+// A clip on an extra video channel: full frame by default, or a box (x, y, width) on top of the main video.
+const LayerClip: React.FC<{ l: Layer; durF: number; grade?: string }> = ({ l, durF, grade }) => {
+  const frame = useCurrentFrame();
+  const { fps, width, height } = useVideoConfig();
+  const src = useSrc();
+  const fade = Math.min(1, frame / 4, (durF - frame) / 4);
+  const pop = popScale(l.pop, frame, fps);
+  const popTf = l.transform ? { ...l.transform, scale: (l.transform.scale ?? 1) * pop } : undefined;
+  const full = l.width == null || l.width >= 1;   // legacy boxed layers (width < 1) still work; new ones use `transform`
+  const w = (l.width ?? 1) * width;
+  const media = l.kind === "image"
+    ? <Img src={src(l.src)} style={{ width: "100%", height: "100%", objectFit: l.fit ?? "cover" }} />
+    : <OffthreadVideo src={src(l.src)} trimBefore={Math.round((l.in ?? 0) * fps)} playbackRate={l.speed || 1} volume={volOf(l.volume ?? 0, l.vol, fps)} muted={!(l.volume ?? 0)}
+        pauseWhenBuffering={false} style={{ width: "100%", height: "100%", objectFit: l.fit ?? "cover" }} />;
+  const filter = [grade, adjustFilter(l.adjust)].filter(Boolean).join(" ") || undefined;
+  if (l.dim && (l.transform || l.crop)) {            // the whole picture at its true size: move, scale, crop and round it like CapCut
+    const r = pictureRect(l.dim, l.fit === "contain" ? "contain" : "cover", width, height);
+    const st: React.CSSProperties = { position: "absolute", left: r.left, top: r.top, width: r.w, height: r.h, objectFit: "fill", clipPath: cropCss(l.crop), borderRadius: l.rounded ? Math.min(r.w, r.h) * 0.05 : 0 };
+    const pic = l.kind === "image"
+      ? <Img src={src(l.src)} style={st} />
+      : <OffthreadVideo src={src(l.src)} trimBefore={Math.round((l.in ?? 0) * fps)} playbackRate={l.speed || 1} volume={volOf(l.volume ?? 0, l.vol, fps)} muted={!(l.volume ?? 0)} pauseWhenBuffering={false} style={st} />;
+    return (
+      <AbsoluteFill style={{ opacity: (l.opacity ?? 1) * Math.max(0, fade), filter }}>
+        <AbsoluteFill style={{ transform: [transformCss(popTf, width, height), flipCss(l.flip)].filter(Boolean).join(" ") || undefined, filter: l.rounded ? "drop-shadow(0 14px 30px rgba(0,0,0,.5))" : undefined }}>{pic}</AbsoluteFill>
+      </AbsoluteFill>
+    );
+  }
+  const shown = <Cropped crop={l.crop}>{media}</Cropped>;
+  if (l.transform) {                               // picture-in-picture the CapCut way: the whole frame-sized layer is moved, scaled and tilted
+    const rad = l.rounded ? Math.min(width, height) * 0.04 : 0;
+    return (
+      <AbsoluteFill style={{ opacity: (l.opacity ?? 1) * Math.max(0, fade), filter }}>
+        <AbsoluteFill style={{ transform: [transformCss(popTf, width, height), flipCss(l.flip)].filter(Boolean).join(" ") || undefined, borderRadius: rad, overflow: "hidden", boxShadow: l.rounded ? "0 14px 44px rgba(0,0,0,.55)" : undefined, backgroundColor: l.crop ? undefined : "#000" }}>{shown}</AbsoluteFill>
+      </AbsoluteFill>
+    );
+  }
+  if (full) return <AbsoluteFill style={{ opacity: (l.opacity ?? 1) * Math.max(0, fade), filter, transform: flipCss(l.flip) || undefined, backgroundColor: l.crop ? undefined : "#000" }}>{shown}</AbsoluteFill>;
+  return <div style={{ position: "absolute", left: (l.x ?? 0.5) * width - w / 2, top: (l.y ?? 0.5) * height - (w * 0.5625) / 2, width: w, height: w * 0.5625,
+    opacity: (l.opacity ?? 1) * Math.max(0, fade), filter, overflow: "hidden", borderRadius: w * 0.02, background: "#000", boxShadow: "0 12px 40px rgba(0,0,0,.5)" }}>{media}</div>;
+};
+
 const ClipLayer: React.FC<{ item: LaidOut; startFrame: number; beatFrames: number[]; pulse: number }> = ({ item, startFrame, beatFrames, pulse }) => {
   const frame = useCurrentFrame();
   const { fps, width: vw, height: vh } = useVideoConfig();
@@ -264,20 +347,32 @@ const ClipLayer: React.FC<{ item: LaidOut; startFrame: number; beatFrames: numbe
   const m = durF > 1 ? frame / (durF - 1) : 0;
   const motion = motionTransform(clip.motion, Math.min(1, Math.max(0, m)), frame, fps);
   const fit = clip.fit ?? "cover";
-  const body = (
-    <AbsoluteFill style={{ transform: `${motion} scale(${1 + bump})` }}>
+  const tf = [transformCss(clip.transform, vw, vh), flipCss(clip.flip)].filter(Boolean).join(" ") || undefined;
+  const natural = !!clip.dim && !!(clip.transform || clip.crop) && !(clip.rotate && clip.rotate % 360);    // the picture moves inside the frame; the frame (and `bg`) stay put
+  const mkBody = (mute: boolean) => (
+    <AbsoluteFill style={{ transform: `${motion} scale(${1 + bump})`, backgroundColor: clip.bg, visibility: clip._hide ? "hidden" : undefined }}>
       <AbsoluteFill style={{ transform: clip.zoom && clip.zoom > 1 ? `scale(${clip.zoom})` : undefined, transformOrigin: `${(clip.focus?.x ?? 0.5) * 100}% ${(clip.focus?.y ?? 0.5) * 100}%` }}>
         {fit === "blur-fill" ? (
           <>
             <Media clip={clip} fit="cover" muted blur />
-            <AbsoluteFill><Media clip={clip} fit="contain" muted={false} /></AbsoluteFill>
+            <AbsoluteFill style={{ transform: tf }}><Media clip={clip} fit="contain" muted={mute} natural={natural} /></AbsoluteFill>
           </>
         ) : (
-          <Media clip={clip} fit={fit} muted={false} />
+          <AbsoluteFill style={{ transform: tf }}>{natural ? <Media clip={clip} fit={fit} muted={mute} natural /> : <Cropped crop={clip.crop}><Media clip={clip} fit={fit} muted={mute} /></Cropped>}</AbsoluteFill>
         )}
       </AbsoluteFill>
     </AbsoluteFill>
   );
+  const body = mkBody(false);
+  // Marvel-style thirds: the frame is cut into three horizontal bands that slide in one after another, alternating sides.
+  const bands = fx.thirds === undefined ? null : [0, 1, 2].map((k) => {
+    const pk = ease(Math.min(1, Math.max(0, (fx.thirds! - k * 0.22) / 0.56)));
+    return (
+      <AbsoluteFill key={k} style={{ clipPath: `inset(${(k * 100) / 3}% 0% ${((2 - k) * 100) / 3}% 0%)`, transform: `translateX(${(k % 2 === 0 ? -1 : 1) * (1 - pk) * 100}%)` }}>
+        {k === 0 ? body : mkBody(true)}
+      </AbsoluteFill>
+    );
+  });
   const g = fx.glitch ?? 0;
   return (
     <AbsoluteFill>
@@ -289,7 +384,7 @@ const ClipLayer: React.FC<{ item: LaidOut; startFrame: number; beatFrames: numbe
             <AbsoluteFill style={{ mixBlendMode: "screen", filter: "url(#mt-g)", transform: `translateX(${g * 6}px)` }}>{body}</AbsoluteFill>
             <AbsoluteFill style={{ mixBlendMode: "screen", filter: "url(#mt-b)", transform: `translateX(${g * 34}px)` }}>{body}</AbsoluteFill>
           </>
-        ) : body}
+        ) : bands ?? body}
         {clip.pip && !item.isOpener && <PipCard pip={clip.pip} durF={durF} hold={item.transOutType === "tunnel"} />}
       </AbsoluteFill>
       {(fx.leak ?? 0) > 0 && (
@@ -396,14 +491,29 @@ export const FamilyMontage: React.FC<FamilyMontageProps> = ({ timeline, mediaBas
   </MediaBase.Provider>
 );
 
-const MontageBody: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
+// Track switches (the icons on the left of the timeline): muted tracks play no sound, hidden tracks show no picture.
+const applyTracks = (tl: Timeline): Timeline => {
+  const tr = tl.tracks, master = tl.master_db ? Math.pow(10, tl.master_db / 20) : 1;
+  if (master === 1 && (!tr || !Object.values(tr).some((v) => v.mute || v.hide))) return tl;
+  const mu = (m: Music): Music => (tr?.["m" + (m.lane ?? 1)]?.mute ? { ...m, volume: 0 } : { ...m, volume: (m.volume ?? 0.8) * master });
+  return {
+    ...tl,
+    clips: tl.clips.map((c) => ({ ...c, volume: tr?.v1?.mute ? 0 : (c.volume ?? 0) * master, ...(tr?.v1?.hide ? { _hide: true } : {}) })),
+    layers: (tl.layers ?? []).filter((l) => !tr?.["v" + l.lane]?.hide).map((l) => ({ ...l, volume: tr?.["v" + l.lane]?.mute ? 0 : (l.volume ?? 0) * master })),
+    music: tl.music ? mu(tl.music) : tl.music,
+    music_more: tl.music_more?.map(mu),
+  };
+};
+
+const MontageBody: React.FC<{ timeline: Timeline }> = ({ timeline: rawTimeline }) => {
+  const timeline = React.useMemo(() => applyTracks(rawTimeline), [rawTimeline]);
   const { fps } = useVideoConfig();
   const src = useSrc();
   const tl = timeline;
   const style = tl.style ?? {};
   const font = getFont(style.font ?? "Heebo");
   const accent = style.accent ?? "#FFD400";
-  const { items, total, openerSeconds } = layoutTimeline(tl);
+  const { items, total, clipsTotal, openerSeconds } = layoutTimeline(tl);
   const openerF = Math.round(openerSeconds * fps);
   const totalF = Math.max(1, Math.ceil(total * fps));
   const beatFrames = (tl.beats ?? []).map((b) => Math.round(b * fps) + openerF).sort((a, b) => a - b);
@@ -422,7 +532,7 @@ const MontageBody: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
       : openerF + Math.round((m.at ?? 0) * fps);
     const from = Math.max(0, raw);
     const skip = Math.max(0, -raw);                 // moved before the very start: skip into the song instead
-    const end = m.until != null ? Math.min(totalF, openerF + Math.round(m.until * fps)) : totalF;
+    const end = m.until != null ? Math.min(totalF, openerF + Math.round(m.until * fps)) : Math.min(totalF, Math.ceil(clipsTotal * fps));
     return { m, k, from, skip, len: end - from };
   }).filter((x) => x.len > 0);
   return (
@@ -439,13 +549,22 @@ const MontageBody: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
         const dur = Math.max(1, Math.round(it.duration * fps));
         return (
           <Sequence key={`${it.clip.id}-${i}`} from={from} durationInFrames={dur} premountFor={Math.round(fps * 1.5)} name={it.clip.label ?? it.clip.id}>
-            <AbsoluteFill style={{ filter: it.isOpener ? undefined : GRADES[style.grade ?? "warm"] }}>
+            <AbsoluteFill style={{ filter: it.isOpener ? undefined : [GRADES[style.grade ?? "warm"], adjustFilter(it.clip.adjust)].filter(Boolean).join(" ") || undefined }}>
               <ClipLayer item={it} startFrame={from} beatFrames={it.isOpener ? [] : beatFrames} pulse={style.beat_pulse ?? 0} />
             </AbsoluteFill>
             {it.clip.text?.value && (
               <TextOverlay value={it.clip.text.value} position={it.clip.text.position ?? "bottom"} kind={it.clip.text.style ?? "pop"}
                 durF={dur - Math.round(it.transOut * fps)} font={font} accent={accent} />
             )}
+          </Sequence>
+        );
+      })}
+
+      {[...(tl.layers ?? [])].sort((a, b) => a.lane - b.lane).map((l) => {
+        const from = openerF + Math.round(l.start * fps), dur = Math.max(1, Math.round((l.end - l.start) * fps));
+        return (
+          <Sequence key={`layer-${l.id}`} from={from} durationInFrames={dur} premountFor={Math.round(fps)} name={`V${l.lane} ${l.label ?? l.id}`}>
+            <LayerClip l={l} durF={dur} grade={GRADES[style.grade ?? "warm"]} />
           </Sequence>
         );
       })}
@@ -487,11 +606,14 @@ const MontageBody: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
             volume={(f: number) => {
               const g = f + from;
               const base = m.volume ?? 0.8;
-              const ducked = loudRanges.some(([a, b]) => g >= a && g < b) ? Math.min(base, m.duck_volume ?? 0.25) : base;
+              // Duck smoothly: ease down just before a clip that has its own sound starts, and back up after it ends (no sudden jumps)
+              const ramp = Math.round(0.5 * fps);
+              const amt = loudRanges.reduce((mx, [a, b]) => { const d = g < a ? a - g : g >= b ? g - b + 1 : 0; return Math.max(mx, d >= ramp ? 0 : 1 - d / ramp); }, 0);
+              const ducked = base - (base - Math.min(base, m.duck_volume ?? 0.25)) * amt;
               const fi = Math.max(1, (m.fade_in ?? 0.5) * fps);
               const fo = Math.max(1, (m.fade_out ?? 2) * fps);
               const env = Math.min(1, f / fi, (len - f) / fo);
-              return Math.max(0, ducked * env);
+              return Math.max(0, ducked * env * (m.vol?.length ? dbGain(dbAt(m.vol, f / fps)) : 1));
             }}
           />
         </Sequence>

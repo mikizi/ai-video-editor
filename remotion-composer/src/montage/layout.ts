@@ -27,7 +27,7 @@ const transSeconds = (t: Transition | undefined, prevLen: number, thisLen: numbe
   return Math.max(0, Math.min(want, prevLen / 2, thisLen / 2));
 };
 
-export function layoutTimeline(tl: Timeline): { items: LaidOut[]; total: number; openerSeconds: number } {
+export function layoutTimeline(tl: Timeline): { items: LaidOut[]; total: number; clipsTotal: number; openerSeconds: number } {
   const items: LaidOut[] = [];
   const op = tl.opener ?? null;
   const openerSeconds = op ? op.seconds : 0;
@@ -57,7 +57,10 @@ export function layoutTimeline(tl: Timeline): { items: LaidOut[]; total: number;
     cursor = start + len;
     prevLen = len;
   });
-  return { items, total: Math.max(cursor, openerSeconds), openerSeconds };
+  // A song with an explicit end (`until`) is its own channel: it may run past the last clip, and then the movie runs on (last frame or background) until the song ends.
+  const clipsTotal = Math.max(cursor, openerSeconds);
+  const musicEnd = Math.max(0, ...[tl.music, ...(tl.music_more ?? [])].map((m) => (m && m.until != null ? openerSeconds + m.until : 0)));
+  return { items, total: Math.max(clipsTotal, musicEnd), clipsTotal, openerSeconds };
 }
 
 // Where a text sits on the montage clock (0 = just after the opener). A text with `follow` is relative to the start of that clip.

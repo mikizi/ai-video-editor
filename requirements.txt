@@ -15,3 +15,6 @@ openai>=2.44.0         # Videos API support for Sora 2
 fastapi>=0.110
 uvicorn>=0.29
 watchfiles>=0.21
+faster-whisper>=1.0            # voice notes in the editor chat + word timings (runs locally)
+mediapipe>=0.10                # person cut-out for background blur / replace in the editor
+opencv-python-headless>=4.8    # frame compositing for the background effects

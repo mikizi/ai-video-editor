@@ -210,7 +210,9 @@ def render_scene(project_id: str, scene_id: str, quality: str = "high") -> dict[
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(".rendering.mp4")
     res = _npx(
-        ["render", str(work), "--output", str(tmp), "--quality", quality, "--variables-file", str(work / "vars.json")],
+        # inline --variables: the CLI's --variables-file crashes ("io.readFile is not a function") on 0.8.2xx
+        ["render", str(work), "--output", str(tmp), "--quality", quality,
+         "--variables", json.dumps(json.loads((work / "vars.json").read_text(encoding="utf-8")))],
         REPO_ROOT, 900,
     )
     if res.returncode != 0 or not tmp.exists():
